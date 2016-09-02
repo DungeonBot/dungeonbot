@@ -16,7 +16,9 @@ class QuestPlugin(BangCommandPlugin):
         "",
         "usage:",
         "    !quest log [INTEGER]",
-        "    !quest new [STRING]"
+        "    !quest new <CASE INSENSITIVE STRING>",
+        "    !quest detail [INTEGER]",
+        "    !quest detail <CASE INSENSITIVE STRING>",
         "",
         "    (<PARAMS> are required",
         "    [PARAMS] are optional)",
@@ -24,7 +26,9 @@ class QuestPlugin(BangCommandPlugin):
         "examples:",
         "    !quest log",
         "    !quest log 3",
-        "    !quest new Kill the Grue."
+        "    !quest new Kill the Grue.",
+        "    !quest detail 1",
+        "    !quest detail Kill the Grue.",
         "```",
     ])
 
@@ -58,7 +62,7 @@ class QuestPlugin(BangCommandPlugin):
 
         try:
             quests = QuestModel.list_active(int(args[1]))
-        except ValueError, IndexError:
+        except (ValueError, IndexError):
             quests = QuestModel.list_active()
 
         if quests:
@@ -67,7 +71,7 @@ class QuestPlugin(BangCommandPlugin):
                 message.append("{}   {}   {}".format(quest.id,
                                                      quest.created.strftime(
                                                          "%b %d, %Y %H:%M"),
-                                                     quest.title))
+                                                     quest.title.capitalize()))
 
         else:
             message = [
@@ -82,16 +86,31 @@ class QuestPlugin(BangCommandPlugin):
 
     def add_new(self, *args):
         """Add a new quest to the quest log."""
+        args = " ".join(args)
         title = " ".join(args.split(" ", 1)[1:])
 
         if title:
-            new_quest = QuestModel.new(title=title)
+            new_quest = QuestModel.new(title=title.lower())
             return "Added Quest #{}: {}".format(new_quest.id, new_quest.title)
         return "You must supply a title to add a quest."
 
     def get_detail(self, *args):
-        """Get the information for a single quest given its ID."""
-        return "Not yet implemented."
+        """Get the information for a single quest given its title or ID."""
+        try:
+            the_id = int(args[1])
+            quest = QuestModel.get_by_id(the_id)
+
+        except IndexError:
+            return 'You should supply either a quest title or a quest ID. "!help quest" for examples on usage.'
+
+        except ValueError:
+            the_title = " ".join(args[1:]).lower()
+            quest = QuestModel.get_by_name(the_title)
+
+        if quest:
+            return quest.slack_msg
+        else:
+            return 'Quest not found. "!quest log" for a list of active quests.'
 
     def edit_quest(self, *args):
         """Edit a particular field or fields for a quest."""

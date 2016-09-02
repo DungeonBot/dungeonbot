@@ -116,9 +116,9 @@ class QuestModel(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(256))
-    description = db.Column(db.String(1024))
-    quest_giver = db.Column(db.String(1024))
-    location_given = db.Column(db.String(1024))
+    description = db.Column(db.String(2048))
+    quest_giver = db.Column(db.String(256))
+    location_given = db.Column(db.String(256))
     status = db.Column(db.Boolean)
     created = db.Column(db.DateTime, nullable=False,
                         default=datetime.now())
@@ -248,7 +248,7 @@ class QuestModel(db.Model):
     def json(self):
         return {
             "id": self.id,
-            "title": self.title,
+            "title": self.title.title(),
             "description": self.description,
             "quest_giver": self.quest_giver,
             "location_given": self.location_given,
