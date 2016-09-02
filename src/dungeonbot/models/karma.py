@@ -108,3 +108,192 @@ class KarmaModel(db.Model):
                 self.karma,
                 self.created,
         )
+
+
+class QuestModel(db.Model):
+    """Model for the Quest object, largely copied from KarmaModel."""
+
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(256))
+    description = db.Column(db.String(1024))
+    quest_giver = db.Column(db.String(1024))
+    location_given = db.Column(db.String(1024))
+    status = db.Column(db.Boolean)
+    created = db.Column(db.DateTime, nullable=False, 
+        default=datetime.utcnow())
+    last_updated = db.Column(db.DateTime, nullable=False,
+        default=datetime.utcnow())
+    completed_date = db.Column(db.DateTime)
+
+    @classmethod
+    def new(cls, title=None, description=None, quest_giver=None, 
+            location_given=None, status=True, completed_date=None,
+            session=None):
+        if session is None:
+            session = db.session
+
+        instance = cls(
+            title=title,
+            description=description,
+            quest_giver=quest_giver,
+            location_given=location_given,
+            status=status,
+            completed_date=None
+        )
+
+        session.add(instance)
+        session.commit()
+        return instance
+
+    @classmethod
+    def modify(cls, quest_id, title=None, description=None,
+               session=None):
+        if session is None:
+            session = db.session
+
+        instance = cls.get_by_id(quest_id)
+
+        if title:
+            instance.title = title
+
+        if description:
+            instance.description = description
+
+
+        instance.last_updated = datetime.utcnow()
+
+        session.add(instance)
+        session.commit()
+        return instance
+
+    @classmethod
+    def add_detail(cls, quest_id, more_detail=None):
+        if session is None:
+            session = db.session
+
+        instance = cls.get_by_id(quest_id)
+        longer_desc = """{}
+
+{}
+"""
+        instance.description = longer_desc.format(instance.description, more_detail)
+        instance.last_updated = datetime.utcnow()
+
+        session.add(instance)
+        session.commit()
+        return instance
+
+    @classmethod
+    def complete(cls, quest_id=None, session=None):
+        if session is None:
+            session = db.session
+
+        instance = cls.get_by_id(quest_id)
+        instance.last_updated = datetime.utcnow()
+        instance.completed_date = datetime.utcnow()
+        instance.status = False
+
+        session.add(instance)
+        session.commit()
+        return instance
+
+    @classmethod
+    def list_newest(cls, how_many=5, session=None):
+        if session is None:
+            session = db.session
+        return session.query(cls.id, cls.title, cls.created).order_by('created desc').limit(how_many).all()
+
+    @classmethod
+    def list_last_updated(cls, how_many=5, session=None):
+        if session is None:
+            session = db.session
+        return session.query(cls.id, cls.title, cls.last_updated).order_by('last_updated desc').limit(how_many).all()
+
+    @classmethod
+    def list_active(cls, session=None):
+        if session is None:
+            session = db.session
+        return session.query(cls.id, cls.title).order_by('created desc').filter_by(status=True).all()
+
+    @classmethod
+    def list_inactive(cls, session=None):
+        if session is None:
+            session = db.session
+        return session.query(cls.id, cls.title, cls.completed_date).order_by('completed_date').filter_by(status=False).all()
+
+    @classmethod
+    def get_by_id(cls, quest_id=None, session=None):
+        if session is None:
+            session = db.session
+        return session.query(cls).get(quest_id)
+
+    @classmethod
+    def get_by_name(cls, quest_name=None, session=None):
+        if session is None:
+            session = db.session
+        try:
+            instance = session.query(cls).filter_by(quest_name=quest_name).one()
+        except NoResultFound:
+            instance = None
+        return instance
+
+    @property
+    def json(self):
+        return {
+            "id": self.id,
+            "title": self.title,
+            "description": self.description,
+            "quest_giver": self.quest_giver,
+            "location_given": self.location_given,
+            "status": self.status,
+            "created": self.created,
+            "last_updated": self.last_updated,
+            "completed_date": self.completed_date,
+        }
+
+    @property
+    def slack_msg(self):
+        output = """```
+*Quest #{}: {}*
+-----------------------
+{}
+
+_Given By {} in {}_
+
+_Date Added: {}_
+_Last Updated: {}_
+*Status: {}*
+```"""
+        status = "Active" if self.status else "Inactive"
+
+        return output.format(
+            self.id,
+            self.title,
+            self.description,
+            self.quest_giver,
+            self.location_given,
+            self.created,
+            self.last_updated,
+            status
+        )
+
+    def __repr__(self):
+        return (
+            "<dungeonbot.models.QuestModel(" +
+            "id={}, description={}, quest_giver={}, " +
+            "location_given={}, status={}, created={}, " +
+            "last_updated={}, completed_date={}"
+            ") [id: {}, description: {}, quest_giver: {}, " +
+            "location_given: {}, status: {}, created: {}, " +
+            "last_updated: {}, completed_date: {}]>"
+        ).format(
+            self.id,
+            self.title,
+            self.upvotes,
+            self.quest_giver,
+            self.location_given,
+            self.status,
+            self.downvotes,
+            self.karma,
+            self.created,
+        )
