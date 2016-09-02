@@ -147,8 +147,8 @@ class QuestModel(db.Model):
         return instance
 
     @classmethod
-    def modify(cls, quest_id, title=None, description=None,
-               session=None):
+    def modify(cls, quest_id, title=None, description=None, quest_giver=None,
+               location=None, session=None):
         if session is None:
             session = db.session
 
@@ -160,6 +160,12 @@ class QuestModel(db.Model):
         if description:
             instance.description = description
 
+        if quest_giver:
+            instance.quest_giver = quest_giver
+
+        if location:
+            instance.location_given = location
+
         instance.last_updated = datetime.now()
 
         session.add(instance)
@@ -167,21 +173,21 @@ class QuestModel(db.Model):
         return instance
 
     @classmethod
-    def add_detail(cls, quest_id, more_detail=None):
+    def add_detail(cls, quest_id, more_detail=None, session=None):
         if session is None:
             session = db.session
 
         instance = cls.get_by_id(quest_id)
-        longer_desc = """{}
 
-{}
-"""
-        instance.description = longer_desc.format(
-            instance.description, more_detail)
-        instance.last_updated = datetime.now()
+        if more_detail:
+            longer_desc = "{}||{}"
+            instance.description = longer_desc.format(
+                instance.description, more_detail)
+            instance.last_updated = datetime.now()
 
-        session.add(instance)
-        session.commit()
+            session.add(instance)
+            session.commit()
+
         return instance
 
     @classmethod
@@ -234,7 +240,7 @@ class QuestModel(db.Model):
             session = db.session
         try:
             instance = session.query(cls).filter_by(
-                quest_name=quest_name).one()
+                title=quest_name).one()
         except NoResultFound:
             instance = None
         return instance
@@ -271,7 +277,7 @@ _Last Updated: {}_
         return output.format(
             self.id,
             self.title,
-            self.description,
+            "\n".join(self.description.split("||")),
             self.quest_giver,
             self.location_given,
             self.created,
