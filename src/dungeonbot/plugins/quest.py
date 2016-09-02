@@ -16,6 +16,7 @@ class QuestPlugin(BangCommandPlugin):
         "",
         "usage:",
         "    !quest log [INTEGER]",
+        "    !quest new [STRING]"
         "",
         "    (<PARAMS> are required",
         "    [PARAMS] are optional)",
@@ -23,6 +24,7 @@ class QuestPlugin(BangCommandPlugin):
         "examples:",
         "    !quest log",
         "    !quest log 3",
+        "    !quest new Kill the Grue."
         "```",
     ])
 
@@ -80,7 +82,12 @@ class QuestPlugin(BangCommandPlugin):
 
     def add_new(self, *args):
         """Add a new quest to the quest log."""
-        return "Not yet implemented."
+        title = " ".join(args.split(" ", 1)[1:])
+
+        if title:
+            new_quest = QuestModel.new(title=title)
+            return "Added Quest #{}: {}".format(new_quest.id, new_quest.title)
+        return "You must supply a title to add a quest."
 
     def get_detail(self, *args):
         """Get the information for a single quest given its ID."""

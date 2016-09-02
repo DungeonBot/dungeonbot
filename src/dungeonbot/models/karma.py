@@ -128,8 +128,7 @@ class QuestModel(db.Model):
 
     @classmethod
     def new(cls, title=None, description=None, quest_giver=None,
-            location_given=None, status=True, completed_date=None,
-            session=None):
+            location_given=None, session=None):
         if session is None:
             session = db.session
 
@@ -138,7 +137,7 @@ class QuestModel(db.Model):
             description=description,
             quest_giver=quest_giver,
             location_given=location_given,
-            status=status,
+            status=True,
             completed_date=None
         )
 
