@@ -260,7 +260,10 @@ class QuestModel(db.Model):
 
     @property
     def slack_msg(self):
-        output = """```
+        status = "Active" if self.status else "Inactive"
+
+        if self.status:
+            output = """```
 *Quest #{}: {}*
 -----------------------
 {}
@@ -271,18 +274,42 @@ _Date Added: {}_
 _Last Updated: {}_
 *Status: {}*
 ```"""
-        status = "Active" if self.status else "Inactive"
+            return output.format(
+                self.id,
+                self.title,
+                "\n".join(self.description.split("||")),
+                self.quest_giver,
+                self.location_given,
+                self.created.strftime("%b %d, %Y %H:%M"),
+                self.last_updated.strftime("%b %d, %Y %H:%M"),
+                status
+            )
 
-        return output.format(
-            self.id,
-            self.title,
-            "\n".join(self.description.split("||")),
-            self.quest_giver,
-            self.location_given,
-            self.created,
-            self.last_updated,
-            status
-        )
+        else:
+            output = """```
+*Quest #{}: {}*
+-----------------------
+{}
+
+_Given By {} in {}_
+
+_Date Added: {}_
+_Last Updated: {}_
+*Status: {}* | Completed: {}
+```"""
+
+            return output.format(
+                self.id,
+                self.title,
+                "\n".join(self.description.split("||")),
+                self.quest_giver,
+                self.location_given,
+                self.created.strftime("%b %d, %Y %H:%M"),
+                self.last_updated.strftime("%b %d, %Y %H:%M"),
+                status,
+                self.completed_date.strftime("%b %d, %Y %H:%M"),
+            )
+
 
     def __repr__(self):
         return (
