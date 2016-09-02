@@ -101,16 +101,17 @@ class KarmaModel(db.Model):
             "string_id={}, upvotes={}, downvotes={}" +
             ") [id: {}, karma: {}, created: {}]>"
         ).format(
-                self.string_id,
-                self.upvotes,
-                self.downvotes,
-                self.id,
-                self.karma,
-                self.created,
+            self.string_id,
+            self.upvotes,
+            self.downvotes,
+            self.id,
+            self.karma,
+            self.created,
         )
 
 
 class QuestModel(db.Model):
+
     """Model for the Quest object, largely copied from KarmaModel."""
 
     id = db.Column(db.Integer, primary_key=True)
@@ -119,14 +120,14 @@ class QuestModel(db.Model):
     quest_giver = db.Column(db.String(1024))
     location_given = db.Column(db.String(1024))
     status = db.Column(db.Boolean)
-    created = db.Column(db.DateTime, nullable=False, 
-        default=datetime.utcnow())
+    created = db.Column(db.DateTime, nullable=False,
+                        default=datetime.now())
     last_updated = db.Column(db.DateTime, nullable=False,
-        default=datetime.utcnow())
+                             default=datetime.now())
     completed_date = db.Column(db.DateTime)
 
     @classmethod
-    def new(cls, title=None, description=None, quest_giver=None, 
+    def new(cls, title=None, description=None, quest_giver=None,
             location_given=None, status=True, completed_date=None,
             session=None):
         if session is None:
@@ -159,8 +160,7 @@ class QuestModel(db.Model):
         if description:
             instance.description = description
 
-
-        instance.last_updated = datetime.utcnow()
+        instance.last_updated = datetime.now()
 
         session.add(instance)
         session.commit()
@@ -176,8 +176,9 @@ class QuestModel(db.Model):
 
 {}
 """
-        instance.description = longer_desc.format(instance.description, more_detail)
-        instance.last_updated = datetime.utcnow()
+        instance.description = longer_desc.format(
+            instance.description, more_detail)
+        instance.last_updated = datetime.now()
 
         session.add(instance)
         session.commit()
@@ -189,8 +190,8 @@ class QuestModel(db.Model):
             session = db.session
 
         instance = cls.get_by_id(quest_id)
-        instance.last_updated = datetime.utcnow()
-        instance.completed_date = datetime.utcnow()
+        instance.last_updated = datetime.now()
+        instance.completed_date = datetime.now()
         instance.status = False
 
         session.add(instance)
@@ -232,7 +233,8 @@ class QuestModel(db.Model):
         if session is None:
             session = db.session
         try:
-            instance = session.query(cls).filter_by(quest_name=quest_name).one()
+            instance = session.query(cls).filter_by(
+                quest_name=quest_name).one()
         except NoResultFound:
             instance = None
         return instance
