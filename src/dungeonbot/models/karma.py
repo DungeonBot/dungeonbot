@@ -216,10 +216,10 @@ class QuestModel(db.Model):
         return session.query(cls.id, cls.title, cls.last_updated).order_by('last_updated desc').limit(how_many).all()
 
     @classmethod
-    def list_active(cls, session=None):
+    def list_active(cls, how_many=5, session=None):
         if session is None:
             session = db.session
-        return session.query(cls.id, cls.title).order_by('created desc').filter_by(status=True).all()
+        return session.query(cls.id, cls.title, cls.created).order_by('created desc').filter_by(status=True).limit(how_many).all()
 
     @classmethod
     def list_inactive(cls, session=None):
@@ -231,7 +231,8 @@ class QuestModel(db.Model):
     def get_by_id(cls, quest_id=None, session=None):
         if session is None:
             session = db.session
-        return session.query(cls).get(quest_id)
+
+        return session.query(cls.id, cls.title, cls.description, cls.quest_giver, cls.location_given, cls.status, cls.created, cls.last_updated, cls.completed_date).filter_by(id=quest_id).first()
 
     @classmethod
     def get_by_name(cls, quest_name=None, session=None):
@@ -258,57 +259,6 @@ class QuestModel(db.Model):
             "completed_date": self.completed_date,
         }
 
-    @property
-    def slack_msg(self):
-        status = "Active" if self.status else "Inactive"
-
-        if self.status:
-            output = """```
-*Quest #{}: {}*
------------------------
-{}
-
-_Given By {} in {}_
-
-_Date Added: {}_
-_Last Updated: {}_
-*Status: {}*
-```"""
-            return output.format(
-                self.id,
-                self.title,
-                "\n".join(self.description.split("||")),
-                self.quest_giver,
-                self.location_given,
-                self.created.strftime("%b %d, %Y %H:%M"),
-                self.last_updated.strftime("%b %d, %Y %H:%M"),
-                status
-            )
-
-        else:
-            output = """```
-*Quest #{}: {}*
------------------------
-{}
-
-_Given By {} in {}_
-
-_Date Added: {}_
-_Last Updated: {}_
-*Status: {}* | Completed: {}
-```"""
-
-            return output.format(
-                self.id,
-                self.title,
-                "\n".join(self.description.split("||")),
-                self.quest_giver,
-                self.location_given,
-                self.created.strftime("%b %d, %Y %H:%M"),
-                self.last_updated.strftime("%b %d, %Y %H:%M"),
-                status,
-                self.completed_date.strftime("%b %d, %Y %H:%M"),
-            )
 
 
     def __repr__(self):
@@ -323,11 +273,11 @@ _Last Updated: {}_
         ).format(
             self.id,
             self.title,
-            self.upvotes,
+            self.description,
             self.quest_giver,
             self.location_given,
             self.status,
-            self.downvotes,
-            self.karma,
             self.created,
+            self.last_updated,
+            self.completed_date,
         )

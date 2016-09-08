@@ -65,13 +65,16 @@ class QuestPlugin(BangCommandPlugin):
         except (ValueError, IndexError):
             quests = QuestModel.list_active()
 
-        if quests:
-            message = ["ID    Date Added    Title"]
+        if quests and isinstance(quests, list):
+            message = [
+                "ID\tDate Added\t\tTitle",
+                "--------------------------------------------------------------",
+            ]
             for quest in quests:
-                message.append("{}   {}   {}".format(quest.id,
-                                                     quest.created.strftime(
-                                                         "%b %d, %Y %H:%M"),
-                                                     quest.title.capitalize()))
+                message.append("{}\t{}\t{}".format(quest.id,
+                                                   quest.created.strftime(
+                                                       "%b %d, %Y %H:%M"),
+                                                   quest.title.capitalize()))
 
         else:
             message = [
@@ -100,15 +103,16 @@ class QuestPlugin(BangCommandPlugin):
             the_id = int(args[1])
             quest = QuestModel.get_by_id(the_id)
 
-        except IndexError:
-            return 'You should supply either a quest title or a quest ID. "!help quest" for examples on usage.'
-
         except ValueError:
             the_title = " ".join(args[1:]).lower()
             quest = QuestModel.get_by_name(the_title)
 
+        except IndexError:
+            return 'You should supply either a quest title or a quest ID. "!help quest" for examples on usage.'
+
         if quest:
-            return quest.slack_msg
+            return self._slack_msg(quest)
+
         else:
             return 'Quest not found. "!quest log" for a list of active quests.'
 
@@ -127,3 +131,29 @@ class QuestPlugin(BangCommandPlugin):
     def invalid_input(self):
         """Notify that the supplied subcommand is invalid"""
         return 'Please use a valid argument. "!help quest" for a list of valid arguments.'
+
+    def _slack_msg(self, quest):
+
+        # import pdb; pdb.set_trace()
+
+        output = [
+            "```",
+            "*Quest #{}: {}*".format(quest.id, quest.title.title()),
+            "-----------------------",
+        ]
+        if quest.description:
+            output.append("{}\n\n".format("\n".join(quest.description.split("||"))))
+        if quest.quest_giver:
+            output.append("_Given by {}_".format(quest.quest_giver))
+        if quest.location_given:
+            output.append("_Given in {}_".format(quest.location_given))
+        output.append("_Date Added: {}_".format(quest.created.strftime("%b %d, %Y %H:%M")))
+        output.append("_Last Updated: {}_".format(quest.last_updated.strftime("%b %d, %Y %H:%M")))
+        if quest.status:
+            output.append("Status: Active")
+        else:
+            output.append("Status: Inactive | Completed: {}".format(quest.completed_date.strftime("%b %d, %Y %H:%M")))
+
+        output.append("```")
+        output = "\n".join(output)
+        return output
