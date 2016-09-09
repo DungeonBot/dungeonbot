@@ -1,8 +1,6 @@
 from dungeonbot.handlers.slack import SlackHandler
-from dungeonbot.models import QuestModel
-from dungeonbot.plugins.primordials import (
-    BangCommandPlugin,
-)
+from dungeonbot.models.quest import QuestModel
+from dungeonbot.plugins.primordials import BangCommandPlugin
 
 TIME_FMT = "%b %d, %Y %H:%M"
 
