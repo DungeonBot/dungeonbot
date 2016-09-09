@@ -79,7 +79,7 @@ class QuestPlugin(BangCommandPlugin):
 
         if quests and isinstance(quests, list):
             message = [
-                "ID\tDate Added\t\t\tTitle",
+                "*ID\tDate Added\t\t\tTitle*",
                 "------------------------------------------------------------",
             ]
             for quest in quests:
@@ -224,7 +224,6 @@ class QuestPlugin(BangCommandPlugin):
         """Return detail about an individual quest."""
 
         output = [
-            "```",
             "*Quest #{}: {}*".format(quest.id, quest.title.title()),
             "-----------------------",
         ]
@@ -245,6 +244,5 @@ class QuestPlugin(BangCommandPlugin):
         else:
             output.append("Status: Inactive | Completed: {}".format(quest.completed_date.strftime(TIME_FMT)))
 
-        output.append("```")
         output = "\n".join(output)
         return output
