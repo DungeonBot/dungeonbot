@@ -21,6 +21,7 @@ class QuestPlugin(BangCommandPlugin):
         "    !quest new <CASE INSENSITIVE STRING>",
         "    !quest detail <INTEGER>",
         "    !quest detail <CASE INSENSITIVE STRING>",
+        "    !quest edit <INTEGER> <title|description|quest_giver|location> [CASE SENSITIVE STRING]",
         "    !quest update <INTEGER> <CASE SENSITIVE STRING>",
         "    !quest complete <INTEGER>",
         "    !quest complete <CASE INSENSITIVE STRING>",
@@ -34,7 +35,11 @@ class QuestPlugin(BangCommandPlugin):
         "    !quest new Kill the Grue",
         "    !quest detail 1",
         "    !quest detail Kill the Grue",
-        "    !quest update 1 Words that will go into the description.",
+        "    !quest edit 1 title Kill all the Grues",
+        "    !quest edit 1 description We've gotta go and murder everything.",
+        "    !quest edit 1 quest_giver Flerg the Blerg",
+        "    !quest edit 1 location Phandolin",
+        "    !quest update 1 Words that will add to the description and not replace it.",
         "    !quest complete 1",
         "    !quest complete Kill the Grue",
         "```",
@@ -70,6 +75,7 @@ class QuestPlugin(BangCommandPlugin):
 
         try:
             quests = QuestModel.list_active(int(args[1]))
+            
         except (ValueError, IndexError):
             quests = QuestModel.list_active()
 
@@ -153,7 +159,7 @@ class QuestPlugin(BangCommandPlugin):
         if quest and quest.status:
             QuestModel.complete(quest.id)
             return "Congratulations on completing {}!".format(quest.title.title())
-            
+
         elif quest and not quest.status:
             return "This quest has already been completed!"
 
@@ -161,7 +167,39 @@ class QuestPlugin(BangCommandPlugin):
 
     def edit_quest(self, *args):
         """Edit a particular field or fields for a quest."""
-        return "Not yet implemented."
+        try:
+            quest_id = int(args[1])
+            quest = QuestModel.get_by_id(quest_id)
+
+        except ValueError:
+            return 'You need to supply a quest ID. "!help quest" for examples on usage.'
+
+        if quest:
+            try:
+                this_field = args[2].lower()
+
+            except IndexError:
+                return 'You need to supply a field to be edited: [title|description|quest_giver|location]'
+
+            white_list = ["title", "description", "quest_giver", "location"]
+
+            if this_field not in white_list:
+                return 'That is not a field you can edit. Try again: [title|description|quest_giver|location]'
+
+            new_val = " ".join(args[3:]).strip()
+
+            if not new_val:
+                return 'You must provide a value for the "{}" field.'.format(this_field)
+
+            inputs = {this_field: new_val}
+            QuestModel.modify(quest.id, **inputs)
+
+            output = "*{}* {} edited.".format(quest.title.title(), this_field)
+            output += "\n\n-----------------------\n\n"
+            output += self._slack_msg(quest)
+            return output
+
+        return self._not_found()
 
     def _invalid_input(self):
         """Notify that the supplied subcommand is invalid."""

@@ -231,6 +231,12 @@ class QuestModel(db.Model):
         return session.query(cls.id, cls.title, cls.completed_date).order_by('completed_date').filter_by(status=False).all()
 
     @classmethod
+    def list_all(cls, session=None):
+        if session is None:
+            session = db.session
+        return session.query(cls.id, cls.title, cls.created, cls.status).order_by('created desc').all()
+
+    @classmethod
     def get_by_id(cls, quest_id=None, session=None):
         if session is None:
             session = db.session
