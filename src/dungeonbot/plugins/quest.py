@@ -79,7 +79,7 @@ class QuestPlugin(BangCommandPlugin):
 
         if quests and isinstance(quests, list):
             message = [
-                "ID\tDate Added\t\tTitle",
+                "ID\tDate Added\t\t\tTitle",
                 "------------------------------------------------------------",
             ]
             for quest in quests:
