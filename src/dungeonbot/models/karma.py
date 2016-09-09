@@ -176,12 +176,15 @@ class QuestModel(db.Model):
         if session is None:
             session = db.session
 
-        instance = cls.get_by_id(quest_id)
+        instance = cls.get_by_id(quest_id, session)
 
         if more_detail:
             longer_desc = "{}||{}"
-            instance.description = longer_desc.format(
-                instance.description, more_detail)
+            if instance.description:
+                instance.description = longer_desc.format(
+                    instance.description, more_detail)
+            else:
+                instance.description = more_detail
             instance.last_updated = datetime.now()
 
             session.add(instance)
@@ -219,7 +222,7 @@ class QuestModel(db.Model):
     def list_active(cls, how_many=5, session=None):
         if session is None:
             session = db.session
-        return session.query(cls.id, cls.title, cls.created).order_by('created desc').filter_by(status=True).limit(how_many).all()
+        return session.query(cls.id, cls.title, cls.created).order_by('id').filter_by(status=True).limit(how_many).all()
 
     @classmethod
     def list_inactive(cls, session=None):
@@ -231,8 +234,15 @@ class QuestModel(db.Model):
     def get_by_id(cls, quest_id=None, session=None):
         if session is None:
             session = db.session
+        # import pdb; pdb.set_trace()
 
-        return session.query(cls.id, cls.title, cls.description, cls.quest_giver, cls.location_given, cls.status, cls.created, cls.last_updated, cls.completed_date).filter_by(id=quest_id).first()
+        try:
+            instance = session.query(cls).filter_by(id=quest_id).one()
+        except NoResultFound:
+            instance = None
+        return instance
+
+        # return session.query(cls.id, cls.title, cls.description, cls.quest_giver, cls.location_given, cls.status, cls.created, cls.last_updated, cls.completed_date).filter_by(id=quest_id).first()
 
     @classmethod
     def get_by_name(cls, quest_name=None, session=None):

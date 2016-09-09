@@ -1,8 +1,10 @@
+from dungeonbot.handlers.slack import SlackHandler
+from dungeonbot.models import QuestModel
 from dungeonbot.plugins.primordials import (
     BangCommandPlugin,
 )
-from dungeonbot.handlers.slack import SlackHandler
-from dungeonbot.models import QuestModel
+
+TIME_FMT = "%b %d, %Y %H:%M"
 
 
 class QuestPlugin(BangCommandPlugin):
@@ -17,8 +19,11 @@ class QuestPlugin(BangCommandPlugin):
         "usage:",
         "    !quest log [INTEGER]",
         "    !quest new <CASE INSENSITIVE STRING>",
-        "    !quest detail [INTEGER]",
+        "    !quest detail <INTEGER>",
         "    !quest detail <CASE INSENSITIVE STRING>",
+        "    !quest update <INTEGER> <CASE SENSITIVE STRING>",
+        "    !quest complete <INTEGER>",
+        "    !quest complete <CASE INSENSITIVE STRING>",
         "",
         "    (<PARAMS> are required",
         "    [PARAMS] are optional)",
@@ -26,9 +31,12 @@ class QuestPlugin(BangCommandPlugin):
         "examples:",
         "    !quest log",
         "    !quest log 3",
-        "    !quest new Kill the Grue.",
+        "    !quest new Kill the Grue",
         "    !quest detail 1",
-        "    !quest detail Kill the Grue.",
+        "    !quest detail Kill the Grue",
+        "    !quest update 1 Words that will go into the description.",
+        "    !quest complete 1",
+        "    !quest complete Kill the Grue",
         "```",
     ])
 
@@ -50,7 +58,7 @@ class QuestPlugin(BangCommandPlugin):
         }
 
         if args[0] not in valid_subcommands.keys():
-            message = self.invalid_input()
+            message = self._invalid_input()
 
         else:
             message = valid_subcommands[args[0]](*args)
@@ -68,13 +76,12 @@ class QuestPlugin(BangCommandPlugin):
         if quests and isinstance(quests, list):
             message = [
                 "ID\tDate Added\t\tTitle",
-                "--------------------------------------------------------------",
+                "------------------------------------------------------------",
             ]
             for quest in quests:
                 message.append("{}\t{}\t{}".format(quest.id,
-                                                   quest.created.strftime(
-                                                       "%b %d, %Y %H:%M"),
-                                                   quest.title.capitalize()))
+                                                   quest.created.strftime(TIME_FMT),
+                                                   quest.title.title()))
 
         else:
             message = [
@@ -95,10 +102,78 @@ class QuestPlugin(BangCommandPlugin):
         if title:
             new_quest = QuestModel.new(title=title.lower())
             return "Added Quest #{}: {}".format(new_quest.id, new_quest.title)
+
         return "You must supply a title to add a quest."
 
     def get_detail(self, *args):
         """Get the information for a single quest given its title or ID."""
+        try:
+            quest = self._get_id_or_name(args)
+
+        except IndexError:
+            return 'You should supply either a quest title or a quest ID. "!help quest" for examples on usage.'
+
+        if quest:
+            return self._slack_msg(quest)
+
+        return self._not_found()
+
+    def update_quest(self, *args):
+        """Update the quest detail."""
+        try:
+            quest_id = int(args[1])
+            quest = QuestModel.get_by_id(quest_id)
+
+        except ValueError:
+            return 'You need to supply a quest ID. "!help quest" for examples on usage.'
+
+        if quest:
+            desc = " ".join(args[2:])
+
+            if desc:
+                QuestModel.add_detail(quest_id, desc)
+                output = "*{}* description updated.".format(quest.title.title())
+                output += "\n\n-----------------------\n\n"
+                output += self._slack_msg(quest)
+                return output
+
+            else:
+                return "You need to supply a description of some sort."
+
+        return self._not_found()
+
+    def complete_quest(self, *args):
+        """Finish the quest and change its status to inactive."""
+        try:
+            quest = self._get_id_or_name(args)
+
+        except IndexError:
+            return 'You should supply either a quest title or a quest ID. "!help quest" for examples on usage.'
+
+        if quest and quest.status:
+            QuestModel.complete(quest.id)
+            return "Congratulations on completing {}!".format(quest.title.title())
+            
+        elif quest and not quest.status:
+            return "This quest has already been completed!"
+
+        return self._not_found()
+
+    def edit_quest(self, *args):
+        """Edit a particular field or fields for a quest."""
+        return "Not yet implemented."
+
+    def _invalid_input(self):
+        """Notify that the supplied subcommand is invalid."""
+        return 'Please use a valid argument. "!help quest" for a list of valid arguments.'
+
+    def _not_found(self):
+        """Notify that the supplied quest id or name doesn't exist"""
+        return 'Quest not found. "!quest log" for a list of active quests.'
+
+    def _get_id_or_name(self, args):
+        """Use the quest ID or quest name to retrieve from the database."""
+
         try:
             the_id = int(args[1])
             quest = QuestModel.get_by_id(the_id)
@@ -107,34 +182,10 @@ class QuestPlugin(BangCommandPlugin):
             the_title = " ".join(args[1:]).lower()
             quest = QuestModel.get_by_name(the_title)
 
-        except IndexError:
-            return 'You should supply either a quest title or a quest ID. "!help quest" for examples on usage.'
-
-        if quest:
-            return self._slack_msg(quest)
-
-        else:
-            return 'Quest not found. "!quest log" for a list of active quests.'
-
-    def edit_quest(self, *args):
-        """Edit a particular field or fields for a quest."""
-        return "Not yet implemented."
-
-    def update_quest(self, *args):
-        """Update the quest detail."""
-        return "Not yet implemented."
-
-    def complete_quest(self, *args):
-        """Finish the quest and change its status to inactive."""
-        return "Not yet implemented."
-
-    def invalid_input(self):
-        """Notify that the supplied subcommand is invalid"""
-        return 'Please use a valid argument. "!help quest" for a list of valid arguments.'
+        return quest
 
     def _slack_msg(self, quest):
-
-        # import pdb; pdb.set_trace()
+        """Return detail about an individual quest."""
 
         output = [
             "```",
@@ -142,17 +193,21 @@ class QuestPlugin(BangCommandPlugin):
             "-----------------------",
         ]
         if quest.description:
-            output.append("{}\n\n".format("\n".join(quest.description.split("||"))))
+            output.append("{}\n\n".format("\n\n".join(quest.description.split("||"))))
+
         if quest.quest_giver:
             output.append("_Given by {}_".format(quest.quest_giver))
+
         if quest.location_given:
             output.append("_Given in {}_".format(quest.location_given))
-        output.append("_Date Added: {}_".format(quest.created.strftime("%b %d, %Y %H:%M")))
-        output.append("_Last Updated: {}_".format(quest.last_updated.strftime("%b %d, %Y %H:%M")))
+
+        output.append("_Date Added: {}_".format(quest.created.strftime(TIME_FMT)))
+        output.append("_Last Updated: {}_".format(quest.last_updated.strftime(TIME_FMT)))
+
         if quest.status:
             output.append("Status: Active")
         else:
-            output.append("Status: Inactive | Completed: {}".format(quest.completed_date.strftime("%b %d, %Y %H:%M")))
+            output.append("Status: Inactive | Completed: {}".format(quest.completed_date.strftime(TIME_FMT)))
 
         output.append("```")
         output = "\n".join(output)
