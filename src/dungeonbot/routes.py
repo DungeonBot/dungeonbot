@@ -6,6 +6,8 @@ from flask import (
     Response
 )
 
+from threading import Thread
+
 from dungeonbot import app
 from dungeonbot.oauth import token_negotiation
 from dungeonbot.handlers.event import EventHandler
@@ -27,6 +29,22 @@ def event_is_important(event):
     return False
 
 
+def process_important_event(event=None):
+    eprint("Thread started!")
+    eprint("Event obtained:", event)
+
+    if event_is_important(event):
+        eprint("event considered important:")
+        eprint(event)
+
+        handler = EventHandler(event)
+        handler.process_event()
+
+    else:
+        eprint("event not considered important:")
+        eprint(event)
+
+
 ################################
 # API ROUTES
 ################################
@@ -41,16 +59,8 @@ def root():
     event = request.json['event']
     event['team_id'] = request.json['team_id']
 
-    if event_is_important(event):
-        eprint("event considered important:")
-        eprint(event)
-
-        handler = EventHandler(event)
-        handler.process_event()
-
-    else:
-        eprint("event not considered important:")
-        eprint(event)
+    thread = Thread(target=process_important_event, kwargs={"event": event})
+    thread.start()
 
     return Response(status=200)
 
