@@ -8,13 +8,28 @@ A small Slack bot API written in Python for the _Import Campaign_ D&D campaign.
 DungeonBot uses Slack's [Events API](https://api.slack.com/events) to listen
 for posts in channels and then acts upon them if appropriate using the
 [slacker](https://github.com/os/slacker) Python library. Interaction is
-primarily done through `!` commands, although there are (plans for) exceptions.
+primarily done through !-commands, with a few exceptions.
+
+
+## Using DungeonBot
+
+Click this button to add DungeonBot to your Slack team:
+
+<a href="https://slack.com/oauth/authorize?scope=identity.basic,identity.team&client_id=56253494592.71252334725">
+  <img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x" />
+</a>
+
+Once that's done, you can invite DungeonBot to any channel, group message,
+or private message.
+
+Get started by typing `!help` in any conversation of which DungeonBot is
+involved!
 
 
 ## Contributing
 
 We track stuff that needs doing over in
-[issues](https://github.com/tlake/dungeonbot/issues).
+[issues](https://gitlab.com/tannerlake/dungeonbot/issues).
 
 Want to help out? Great! Here's how:
 
@@ -31,7 +46,7 @@ Want to help out? Great! Here's how:
 - Force-push your cleaned-up personal branch (I don't care about rewriting
   history in these small auxiliary branches - I'd rather have a cleaner,
   easier-to-follow history in `master`).
-- Make a pull request from your new branch back into `dev`.
+- Make a merge request from your new branch back into `dev`.
      - If your work addresses an issue, please reference it in the body of
        the MR.
      - If your work resolves an issue, please use Git's issue-resolution
@@ -50,12 +65,13 @@ the app config and the routing are both imported into `dungeonbot/__init__.py`.
 From there, the logic chain proceeds through `dungeonbot/handlers/*.py`, which
 parses the Slack input and spins up the appropriate plugin in
 `dungeonbot/plugins/*.py`. Additionally, database models live in
-`dungeonbot/models.py`, and `dungeonbot/oauth.py` exists to allow teams to
+`dungeonbot/models/*.py`, and `dungeonbot/oauth.py` exists to allow teams to
 integrate DungeonBot.
 
 Outside of the `dungeonbot` module, `manage.py` will likely be the primary
 interface for interacting with the bot while developing, and `auxiliaries/`
 contains a small suite of files that may be of use during development.
+
 
 #### Setup
 
@@ -63,6 +79,7 @@ contains a small suite of files that may be of use during development.
 
 It's Python3, so you'll be wanting an appropriate virtual environment and to
 `pip install -r pipreqs.txt`.
+
 
 ##### Database
 
@@ -94,6 +111,7 @@ manage migrations. Once changes have been made to any models, run
 Migrations are automatically stored in `migrations/`, and these files ought to
 be committed to the repository in order to maintain the integrity of the
 production database.
+
 
 ##### Running Locally
 
@@ -147,6 +165,7 @@ class YourNewPlugin(Plugin):
         bot.make_post(self.event, message)
 ```
 
+
 ##### Add Plugin To The Event Handler
 
 Update the `EventHandler()` class's `valid_commands` (or `valid_suffixes`, if
@@ -168,6 +187,7 @@ class EventHandler(object):
     # . . .
 ```
 
+
 ##### Add Plugin To The Help Plugin
 
 Update the `HelpPlugin()` found in `dungeonbot/plugins/help/` with information
@@ -188,23 +208,49 @@ available help topics:
     your_plugin_command
 ```
 
+
 #### Model Quickstart
 
-```
-class ExampleModel(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    text = db.Column(db.String(128))
+In `dungeonbot/models/example.py`, for example:
 
+```
+from dungeonbot.models import db
+
+class ExampleModel(db.Model):
+    # This allows Alembic to update the db if this model changes,
+    # instead of requiring the database to be erased and recreated:
+    __table_args__ = {"extend_existing": True}
+
+    # Params useful for identification:
+    id = db.Column(db.Integer, primary_key=True)
+    created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow())
+
+    # Params your model needs to do what it's supposed to:
+    something = db.Column(db.String(128))
+    something_else = db.Column(db.Integer)
+
+    # Class methods like this one can be used to give database operations
+    # to the model itself, which makes them very easy to use in program logic:
     @classmethod
     def new(cls, text=None, session=None):
         if session is None:
             session = db.session
-        instance = cls(text=text)
+        instance = cls(something=something, something_else=something_else)
         session.add(instance)
         session.commit()
         return instance
-```
 
-_Using class methods on a model (like `new()` above) allows for database
-actions to be wrapped up and contained within the model itself in a very nice,
-object-oriented manner._
+    # Define a custom representation of the model that will actually be
+    # useful when debugging:
+    def __repr__(self):
+        return (
+            "<dungeonbot.models.example.ExampleModel(" +
+            "something={}, something_else={}" +
+            ") [id: {}, created: {}]>"
+        ).format(
+                self.something,
+                self.something_else,
+                self.id,
+                self.created,
+        )
+```
