@@ -1,6 +1,4 @@
-# from flask_sqlalchemy import SQLAlchemy
-# from dungeonbot import app
-from dungeonbot.models.karma import db
+from dungeonbot.models import db
 
 
 class RollModel(db.model):
@@ -10,6 +8,8 @@ class RollModel(db.model):
     Saved rolls will also have a roll_str property -- the value for the
     roll.
     """
+
+    __table_args__ = {"extend_existing": True}
 
     id = db.Column(db.Integer, primary_key=True)
     string_id = db.Column(db.String(256))

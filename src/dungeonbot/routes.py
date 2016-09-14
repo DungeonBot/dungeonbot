@@ -1,9 +1,9 @@
 import os
 
 from flask import (
-    render_template,
     request,
-    Response
+    redirect,
+    Response,
 )
 
 from threading import Thread
@@ -54,7 +54,7 @@ def root():
     eprint("hit / route")
 
     if request.method == "GET":
-        return render_template("index.html")
+        return redirect("http://gitlab.com/tannerlake/dungeonbot/blob/master/README.md", code=302)
 
     event = request.json['event']
     event['team_id'] = request.json['team_id']
