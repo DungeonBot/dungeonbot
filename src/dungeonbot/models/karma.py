@@ -1,13 +1,13 @@
-from flask_sqlalchemy import SQLAlchemy
-from dungeonbot import app
+from dungeonbot.models import db
+
 from datetime import datetime
 from sqlalchemy.orm.exc import NoResultFound
 
 
-db = SQLAlchemy(app)
-
-
 class KarmaModel(db.Model):
+
+    __table_args__ = {"extend_existing": True}
+
     id = db.Column(db.Integer, primary_key=True)
     string_id = db.Column(db.String(256))
     upvotes = db.Column(db.Integer)

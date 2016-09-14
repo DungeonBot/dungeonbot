@@ -48,7 +48,7 @@ class EventHandler(object):
 
         else:
             bot = SlackHandler()
-            message = "Sorry,'!{}' is not a valid command.".format(command)
+            message = "Sorry, '!{}' is not a valid command.".format(command)
             bot.make_post(self.event, message)
 
     def parse_suffix_command(self):
