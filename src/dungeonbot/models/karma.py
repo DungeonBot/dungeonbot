@@ -60,7 +60,12 @@ class KarmaModel(db.Model):
     def list_newest(cls, how_many=5, session=None):
         if session is None:
             session = db.session
-        return session.query(cls).order_by('created desc').limit(how_many).all()
+        return (
+            session.query(cls).
+            order_by('created desc').
+            limit(how_many).
+            all()
+        )
 
     @classmethod
     def list_highest(cls, how_many=5, session=None):
