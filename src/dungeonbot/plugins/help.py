@@ -6,6 +6,7 @@ from dungeonbot.plugins.karma import (
     KarmaBottomPlugin,
 )
 from dungeonbot.plugins.roll import RollPlugin
+from dungeonbot.plugins.quest import QuestPlugin
 
 
 class HelpPlugin(BangCommandPlugin):
@@ -15,6 +16,7 @@ class HelpPlugin(BangCommandPlugin):
         'karma_top': KarmaTopPlugin,
         'karma_bottom': KarmaBottomPlugin,
         'roll': RollPlugin,
+        'quest': QuestPlugin
     }
 
     help_text = """```
@@ -22,6 +24,7 @@ available help topics:
     help
     karma
     roll
+    quest
 
 Try `!help [topic]` for information on a specific topic.
 ```"""
