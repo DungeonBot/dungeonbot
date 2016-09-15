@@ -5,7 +5,6 @@ from sqlalchemy.orm.exc import NoResultFound
 
 
 class KarmaModel(db.Model):
-
     __table_args__ = {"extend_existing": True}
 
     id = db.Column(db.Integer, primary_key=True)
@@ -61,7 +60,12 @@ class KarmaModel(db.Model):
     def list_newest(cls, how_many=5, session=None):
         if session is None:
             session = db.session
-        return session.query(cls).order_by('created desc').limit(how_many).all()
+        return (
+            session.query(cls).
+            order_by('created desc').
+            limit(how_many).
+            all()
+        )
 
     @classmethod
     def list_highest(cls, how_many=5, session=None):
@@ -101,10 +105,10 @@ class KarmaModel(db.Model):
             "string_id={}, upvotes={}, downvotes={}" +
             ") [id: {}, karma: {}, created: {}]>"
         ).format(
-                self.string_id,
-                self.upvotes,
-                self.downvotes,
-                self.id,
-                self.karma,
-                self.created,
+            self.string_id,
+            self.upvotes,
+            self.downvotes,
+            self.id,
+            self.karma,
+            self.created,
         )
