@@ -78,7 +78,7 @@ examples:
             saved = RollModel.list(how_many=how_many, user=user)
             message = "*Saved Rolls for {}:*".format(user)
             for x in saved:
-                message += "{}: {}".format(x.key, x.val)
+                message += "\n{}: {}".format(x.key, x.val)
             return message
 
         else:
