@@ -1,8 +1,5 @@
-from flask_sqlalchemy import SQLAlchemy
-from dungeonbot import app
 from sqlalchemy.orm.exc import NoResultFound
-
-db = SQLAlchemy(app)
+from dungeonbot.models import db
 
 
 class RollModel(db.Model):
