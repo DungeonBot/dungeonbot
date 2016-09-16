@@ -72,11 +72,11 @@ examples:
         # list all saved rolls
         elif roll_str == "list":
             how_many = 10
+            message = "*Saved Rolls for {}:*".format(user)
             roll_str = roll_str.lstrip("list")
             if roll_str:
                 how_many = int(roll_str)
             saved = RollModel.list(how_many=how_many, user=user)
-            message = "*Saved Rolls for {}:*".format(user)
             for x in saved:
                 message += "\n{}: {}".format(x.key, x.val)
             return message
