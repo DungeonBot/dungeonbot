@@ -44,10 +44,20 @@ class RollModel(db.Model):
         if session is None:
             session = db.session
         try:
-            instance = session.query(cls).filter_by(key=key, user=user).one()
+            instance = session.query(cls).filter_by(key=key, user=user).first()
         except NoResultFound:
             instance = None
         return instance
+
+    @classmethod
+    def delete(cls, instance, session=None):
+        """Delete Roll."""
+        if session is None:
+            session = db.session
+        name = instance.key
+        session.delete(instance)
+        session.commit()
+        return name + " was successfully deleted."
 
     @classmethod
     def list(cls, how_many=10, user=None, session=None):

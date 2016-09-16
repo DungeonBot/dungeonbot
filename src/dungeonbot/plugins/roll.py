@@ -69,6 +69,15 @@ examples:
             else:
                 return "Not a valid Key/Value Pair"
 
+        elif roll_str.startswith("delete"):
+            roll_str = roll_str.lstrip("delete")
+            instance = RollModel.get_by_key(key=roll_str, user=user)
+            if instance:
+                
+                return RollModel.delete(instance)
+            else:
+                return "Item Not found!"
+
         # list all saved rolls
         elif roll_str == "list":
             how_many = 10
@@ -80,7 +89,6 @@ examples:
             for x in saved:
                 message += "\n{}: {}".format(x.key, x.val)
             return message
-
         else:
             name = None
             saved_roll = RollModel.get_by_key(key=roll_str, user=user)
