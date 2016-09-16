@@ -1,5 +1,6 @@
 from sqlalchemy.orm.exc import NoResultFound
 from dungeonbot.models import db
+from datetime import datetime
 
 
 class RollModel(db.Model):
