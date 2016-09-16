@@ -1,13 +1,19 @@
+"""Define the SlackHandler class."""
+
 import os
 from slacker import Slacker
 from auxiliaries.helpers import eprint
 
 
 class SlackHandler(object):
+    """Handle interacting with Slack."""
+
     def __init__(self):
+        """Initialize SlackHandler with a Slacker connection."""
         self.slack = Slacker(os.environ.get("BOT_ACCESS_TOKEN"))
 
     def make_post(self, event, message):
+        """Post a message to Slack."""
         if os.getenv("PERMISSION_TO_SPEAK"):
             self.slack.chat.post_message(
                 event['channel'],
@@ -21,13 +27,12 @@ class SlackHandler(object):
             eprint("Message that would have been sent to Slack:", message)
 
     def get_user_obj_from_id(self, user_id):
+        """Fetch a user dict object from Slack."""
         if os.getenv("PERMISSION_TO_SPEAK"):
             members_dict = self.slack.users.list().body['members']
             for entry in members_dict:
                 if user_id in entry['id']:
                     return entry
-            # return [x for x in self.slack.users.list().body['members']
-            # if user_id in x["id"]][0]
         else:
             return {
                 'color': '99a949',
@@ -66,6 +71,7 @@ class SlackHandler(object):
             }
 
     def get_user_from_id(self, user_id):
+        """Lookup Slack username given user ID."""
         if os.getenv("PERMISSION_TO_SPEAK"):
             user_obj = self.get_user_obj_from_id(user_id)
             return user_obj['name'] if user_obj else None
@@ -73,6 +79,7 @@ class SlackHandler(object):
             return "A_SLACK_USERNAME"
 
     def get_userid_from_name(self, username):
+        """Lookup Slack user ID given username."""
         if os.getenv("PERMISSION_TO_SPEAK"):
             return self.slack.users.get_user_id(username)
         else:

@@ -1,5 +1,12 @@
 #!/usr/bin/env python
 
+"""Manage the Flask project.
+
+Provides functionality for performing database oeprations (init,
+migrate, upgrade), running the project locally, and creating a shell
+entrypoint pre-populated with key aspects of the project.
+
+"""
 from flask_script import Manager, Shell, Server
 from flask_migrate import Migrate, MigrateCommand
 
@@ -11,18 +18,19 @@ from dungeonbot.models import (
     roll,
 )
 
-
-from dungeonbot.models import (
-    karma,
-    roll,
-    quest,
-)
-
 import os
 
 
 def _make_context():
-    return dict(app=app, db=models.db, models=models)
+    return dict(
+        app=app,
+        db=models.db,
+        models=[
+            karma,
+            quest,
+            roll,
+        ],
+    )
 
 manager = Manager(app)
 

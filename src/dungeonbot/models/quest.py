@@ -1,16 +1,14 @@
-# from flask_sqlalchemy import SQLAlchemy
-# from dungeonbot import app
+"""Define database models for the Quest plugin."""
+
+from dungeonbot.models import db
+
 from datetime import datetime
 from sqlalchemy.orm.exc import NoResultFound
 
 
-# db = SQLAlchemy(app)
-
-from dungeonbot.models import db
-
-
 class QuestModel(db.Model):
     """Model for the Quest object, largely copied from KarmaModel."""
+
     __table_args__ = {"extend_existing": True}
 
     id = db.Column(db.Integer, primary_key=True)
@@ -28,6 +26,7 @@ class QuestModel(db.Model):
     @classmethod
     def new(cls, title=None, description=None, quest_giver=None,
             location_given=None, session=None):
+        """Create new quest database entry."""
         if session is None:
             session = db.session
 
@@ -47,6 +46,7 @@ class QuestModel(db.Model):
     @classmethod
     def modify(cls, quest_id, title=None, description=None, quest_giver=None,
                location=None, session=None):
+        """Modify an existing quest database entry."""
         if session is None:
             session = db.session
 
@@ -72,6 +72,7 @@ class QuestModel(db.Model):
 
     @classmethod
     def add_detail(cls, quest_id, more_detail=None, session=None):
+        """Add details to an existing quest database entry."""
         if session is None:
             session = db.session
 
@@ -93,6 +94,7 @@ class QuestModel(db.Model):
 
     @classmethod
     def complete(cls, quest_id=None, session=None):
+        """Mark an existing database entry as completed."""
         if session is None:
             session = db.session
 
@@ -107,39 +109,85 @@ class QuestModel(db.Model):
 
     @classmethod
     def list_newest(cls, how_many=5, session=None):
+        """Retrieve the n most recently-created quest entries.
+
+        n defaults to 5 if not specified.
+
+        """
         if session is None:
             session = db.session
-        return session.query(cls.id, cls.title, cls.created).order_by('created desc').limit(how_many).all()
+        return (
+            session.query(cls.id, cls.title, cls.created).
+            order_by('created desc').
+            limit(how_many).
+            all()
+        )
 
     @classmethod
     def list_last_updated(cls, how_many=5, session=None):
+        """Retrieve the n most recently-updated quest entries.
+
+        n defaults to 5 if not specified.
+
+        """
         if session is None:
             session = db.session
-        return session.query(cls.id, cls.title, cls.last_updated).order_by('last_updated desc').limit(how_many).all()
+        return (
+            session.query(cls.id, cls.title, cls.last_updated).
+            order_by('last_updated desc').
+            limit(how_many).
+            all()
+        )
 
     @classmethod
     def list_active(cls, how_many=5, session=None):
+        """Retrieve n active quest entries, ordered by primary key ID.
+
+        n defaults to 5 if not specified.
+
+        """
         if session is None:
             session = db.session
-        return session.query(cls.id, cls.title, cls.created).order_by('id').filter_by(status=True).limit(how_many).all()
+        return (
+            session.query(cls.id, cls.title, cls.created).
+            order_by('id').
+            filter_by(status=True).
+            limit(how_many).
+            all()
+        )
 
     @classmethod
     def list_inactive(cls, session=None):
+        """Retrieve n inactive quest entries, ordered by completed date.
+
+        n defaults to 5 if not specified.
+
+        """
         if session is None:
             session = db.session
-        return session.query(cls.id, cls.title, cls.completed_date).order_by('completed_date').filter_by(status=False).all()
+        return (
+            session.query(cls.id, cls.title, cls.completed_date).
+            order_by('completed_date').
+            filter_by(status=False).
+            all()
+        )
 
     @classmethod
     def list_all(cls, session=None):
+        """Retrieve every quest entry, ordered by creation date."""
         if session is None:
             session = db.session
-        return session.query(cls.id, cls.title, cls.created, cls.status).order_by('created desc').all()
+        return (
+            session.query(cls.id, cls.title, cls.created, cls.status).
+            order_by('created desc').
+            all()
+        )
 
     @classmethod
     def get_by_id(cls, quest_id=None, session=None):
+        """Retrieve a quest entry by its quest_id."""
         if session is None:
             session = db.session
-        # import pdb; pdb.set_trace()
 
         try:
             instance = session.query(cls).filter_by(id=quest_id).one()
@@ -147,10 +195,9 @@ class QuestModel(db.Model):
             instance = None
         return instance
 
-        # return session.query(cls.id, cls.title, cls.description, cls.quest_giver, cls.location_given, cls.status, cls.created, cls.last_updated, cls.completed_date).filter_by(id=quest_id).first()
-
     @classmethod
     def get_by_name(cls, quest_name=None, session=None):
+        """Retrieve a quest entry by its quest_name."""
         if session is None:
             session = db.session
         try:
@@ -162,6 +209,7 @@ class QuestModel(db.Model):
 
     @property
     def json(self):
+        """Return a JSON representation of a quest object instance."""
         return {
             "id": self.id,
             "title": self.title.title(),
@@ -175,6 +223,7 @@ class QuestModel(db.Model):
         }
 
     def __repr__(self):
+        """Define shell representation of quest objects."""
         return (
             "<dungeonbot.models.QuestModel(" +
             "id={}, description={}, quest_giver={}, " +

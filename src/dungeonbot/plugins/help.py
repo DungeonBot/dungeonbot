@@ -1,3 +1,5 @@
+"""Define logic for the Help plugin."""
+
 from dungeonbot.plugins.primordials import BangCommandPlugin
 from dungeonbot.plugins.karma import (
     KarmaPlugin,
@@ -10,6 +12,8 @@ from dungeonbot.plugins.quest import QuestPlugin
 
 
 class HelpPlugin(BangCommandPlugin):
+    """Switchboard for `!help` commands."""
+
     help_topics = {
         'karma': KarmaPlugin,
         'karma_newest': KarmaNewestPlugin,
@@ -30,6 +34,7 @@ Try `!help [topic]` for information on a specific topic.
 ```"""
 
     def run(self):
+        """Run the `help()` function of the appropriate plugin."""
         args = self.arg_string.split()
 
         if args and args[0] in self.help_topics:

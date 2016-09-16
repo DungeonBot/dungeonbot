@@ -1,3 +1,5 @@
+"""Define the EventHandler class."""
+
 from dungeonbot.handlers.slack import SlackHandler
 from dungeonbot.plugins import (
     help,
@@ -8,21 +10,28 @@ from dungeonbot.plugins import (
 
 
 class EventHandler(object):
+    """Parse events and call the appropriate plugin."""
+
     suffixes = ["++", "--"]
 
     def __init__(self, event):
+        """Initialize EventHandler with an event passed in."""
         self.event = event
 
     def process_event(self):
-        # event is a '!' command
+        """Decide type of command.
+
+        Commands can either be bang-commands or suffix-commands.
+
+        """
         if self.event['text'][0] == "!":
             self.parse_bang_command()
 
-        # event is a suffix command
         elif self.event['text'][-2:] in self.suffixes:
             self.parse_suffix_command()
 
     def parse_bang_command(self):
+        """Parse a bang-command and call the appropriate plugin."""
         valid_commands = {
             'help': help.HelpPlugin,
             'karma': karma.KarmaPlugin,
@@ -54,6 +63,7 @@ class EventHandler(object):
             bot.make_post(self.event, message)
 
     def parse_suffix_command(self):
+        """Parse a suffix-command and call the appropriate plugin."""
         valid_suffixes = {
             '++': karma.KarmaModifyPlugin,
             '--': karma.KarmaModifyPlugin,
