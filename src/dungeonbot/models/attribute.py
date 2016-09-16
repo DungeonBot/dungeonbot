@@ -21,10 +21,13 @@ class AttrModel(db.Model):
         if session is None:
             session = db.session
         key, val = args
-        instance = cls(key= key, val=val, user=user)
+        # try:
+        instance = cls(key=key, val=val, user=user)
         session.add(instance)
         session.commit()
         return instance
+        # except IntegrityError:
+        # return "{} already exists".format(args)
 
     @classmethod
     def get(cls, args=None, user=None, session=None):
@@ -32,7 +35,7 @@ class AttrModel(db.Model):
         if session is None:
             session = db.session
         try:
-            instance = session.query(cls).filter_by(key=args, user=user).one()
+            instance = session.query(cls).filter_by(key=args[0], user=user).one()
         except NoResultFound:
             instance = None
         return instance
@@ -46,7 +49,7 @@ class AttrModel(db.Model):
         """
         if session is None:
             session = db.session
-        how_many = int(args) if args else 10
+        how_many = int(args[0]) if len(args) > 0 else 10
         return session.query(cls).order_by('created desc').limit(how_many).all()
 
     @classmethod
@@ -55,9 +58,9 @@ class AttrModel(db.Model):
         if session is None:
             session = db.session
         try:
-            instance = session.query(cls).filter_by(key=args, user=user).one()
+            instance = session.query(cls).filter_by(key=args[0], user=user).one()
             session.delete(instance)
             session.commit()
-            return args
+            return "Successfully deleted {}".format(args)
         except NoResultFound:
             return "No entry named {} found".format(args)
