@@ -64,24 +64,31 @@ examples:
         if roll_str.startswith("save"):
             parsed = RollModel.parse_key_val_pairs(roll_str.lstrip("save"))
             if parsed:
-                return RollModel.new(parsed[0], parsed[1], user)
+                instance = RollModel.new(parsed[0], parsed[1], user)
+                return "Successfully Saved {}: {}".format(instance.key, instance.val)
             else:
                 return "Not a valid Key/Value Pair"
 
         # list all saved rolls
-        if roll_str == "list":
+        elif roll_str == "list":
             how_many = 10
             roll_str = roll_str.lstrip("list")
             if roll_str:
                 how_many = int(roll_str)
-            return RollModel.list(how_many=how_many, user=user)
+            saved = RollModel.list(how_many=how_many, user=user)
+            message = "*Saved Rolls for {}:*".format(user)
+            for x in saved:
+                message += "{}: {}".format(x.key, x.val)
+            return message
 
-        # Check for saved roll.
-        saved_roll = RollModel.get_by_key(key=roll_str, user=user)
-        if saved_roll:
-            # if roll is saved, assign the saved rolls value to roll_str
-            roll_str = saved_roll.value
+        else:
+            name = None
+            saved_roll = RollModel.get_by_key(key=roll_str, user=user)
+            if saved_roll:
+                # if roll is saved, assign the saved rolls value to roll_str
+                roll_str = saved_roll.val
+                name = saved_roll.key
 
-        # Create new roll object, and print result of obj's action.
-        r = DieRoll(roll_str)
-        return r.print_results(r.action())
+            # Create new roll object, and print result of obj's action.
+            r = DieRoll(roll_str)
+            return r.print_results(r.action(), name)

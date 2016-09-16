@@ -31,7 +31,7 @@ class DieRoll(object):
         self.min_roll = self.number
         self.max_roll = self.sides * self.number
 
-    def print_results(self, roll_result):
+    def print_results(self, roll_result, name=None):
         """Return result of roll."""
         roll_plus_mods = "{} {} {}".format(
             roll_result,
@@ -48,6 +48,8 @@ class DieRoll(object):
             self.message
         )
 
+        if name:
+            final_result += " with {}".format(name)
         return final_result
 
     def roll_die(self):
