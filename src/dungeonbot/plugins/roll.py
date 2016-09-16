@@ -73,13 +73,12 @@ examples:
             roll_str = roll_str.lstrip("delete")
             instance = RollModel.get_by_key(key=roll_str, user=user)
             if instance:
-                
                 return RollModel.delete(instance)
             else:
                 return "Item Not found!"
 
         # list all saved rolls
-        elif roll_str == "list":
+        elif roll_str.startswith("list"):
             how_many = 10
             message = "*Saved Rolls for {}:*".format(user)
             roll_str = roll_str.lstrip("list")
