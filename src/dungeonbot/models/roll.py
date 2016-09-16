@@ -14,6 +14,7 @@ class RollModel(db.Model):
     key = db.Column(db.String(256))
     val = db.Column(db.String(256))
     user = db.Column(db.String(256))
+    created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow())
 
     @classmethod
     def parse_key_val_pairs(cls, roll_str):
