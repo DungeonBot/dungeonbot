@@ -67,7 +67,3 @@ class DieRoll(object):
         """Roll with disadvantage."""
         self.message = "with disadvantage"
         return min(self.roll_die(), self.roll_die())
-
-    def save(self):
-        """Save roll."""
-        pass
