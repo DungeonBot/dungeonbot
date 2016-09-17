@@ -64,12 +64,23 @@ class RollModel(db.Model):
         """List saved rolls, defaults to 10 most recent."""
         if session is None:
             session = db.session
-        return session.query(cls).filter_by(user=user).order_by('created desc').limit(how_many).all()
+        return(
+            session.query(cls).
+            filter_by(user=user).
+            order_by('created desc').
+            limit(how_many).
+            all()
+        )
 
     @property
     def json(self):
         """Return JSON representation of model."""
-        return {"id": self.id, "key": self.key, "value": self.value, "user": self.user}
+        return {
+            "id": self.id,
+            "key": self.key,
+            "value": self.value,
+            "user": self.user
+        }
 
     @property
     def slack_msg(self):
