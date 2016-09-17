@@ -54,7 +54,7 @@ Examples:
 
     def get_key(self, args, user):
         """Get saved key."""
-        instance = AttrModel.get(args=args, user=user)
+        instance = AttrModel.get(args=args[0], user=user)
         if instance:
             message = "{}: {}".format(instance.key, instance.val)
         else:
@@ -74,7 +74,7 @@ Examples:
 
     def list_keys(self, args, user):
         """List keys belonging to requesting user."""
-        instances = AttrModel.list(args=args, user=user)
+        instances = AttrModel.list(args=args[0], user=user)
         message = "Listing attributes for {}".format(user)
         for i in instances:
             message += "\n{}: {}".format(i.key, i.val)
@@ -82,7 +82,7 @@ Examples:
 
     def delete_key(self, args, user):
         """Delete specified key."""
-        deleted_name = AttrModel.delete(args=args, user=user)
+        deleted_name = AttrModel.delete(args=args[0], user=user)
         if deleted_name:
             message = "Successfully deleted {}".format(deleted_name)
         else:
