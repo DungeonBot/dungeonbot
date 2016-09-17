@@ -1,6 +1,8 @@
 from dungeonbot.models import db
 from datetime import datetime
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import IntegrityError
+
 
 
 class AttrModel(db.Model):
@@ -21,13 +23,14 @@ class AttrModel(db.Model):
         if session is None:
             session = db.session
         key, val = args
-        # try:
-        instance = cls(key=key, val=val, user=user)
-        session.add(instance)
-        session.commit()
-        return instance
-        # except IntegrityError:
-        # return "{} already exists".format(args)
+        try:
+            instance = cls(key=key, val=val, user=user)
+            session.add(instance)
+            session.commit()
+            return instance
+        except IntegrityError:
+            session.rollback()
+            return "duplicate"
 
     @classmethod
     def get(cls, args=None, user=None, session=None):
@@ -61,6 +64,6 @@ class AttrModel(db.Model):
             instance = session.query(cls).filter_by(key=args[0], user=user).one()
             session.delete(instance)
             session.commit()
-            return "Successfully deleted {}".format(args)
+            return args
         except NoResultFound:
-            return "No entry named {} found".format(args)
+            return None

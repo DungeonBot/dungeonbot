@@ -37,32 +37,48 @@ Examples:
 
     def process_attr(self, args, user):
         commands = {
-            "get": AttrModel.get,
-            "set": AttrModel.set,
-            "list": AttrModel.list,
-            "delete": AttrModel.delete,
+            "get": self.get_key,
+            "set": self.set_key,
+            "list": self.list_keys,
+            "delete": self.delete_key,
         }
 
         command = args[0]
         args = args[1:]
         if command in commands:
-            instance = commands[command](args=args, user=user)
-            return self.print_result(instance, command)
+            return commands[command](args=args, user=user)
         else:
             return "Not a valid command."
 
-
-    def print_result(self, instance, command):
-        message = "*Player Attributes:*"
-        if type(instance) == str:
-            message += "\n{} -- {}".format(command, instance)
-        elif command == "list":
-            message += "\n{}:".format(command)
-            for i in instance:
-                message += "\n{}: {}".format(i.key, i.val)
-        elif instance:
-            message += "\n{} -- {}: {}".format(command, instance.key, instance.val)
+    def get_key(self, args, user):
+        instance = AttrModel.get(args=args, user=user)
+        if instance:
+            message = "{}: {}".format(instance.key, instance.val)
         else:
-            message += "No Information on {} instance when running {}.".format(instance, command)
+            message = "Could not find {}".format(args)
         return message
 
+    def set_key(self, args, user):
+        instance = AttrModel.set(args=args, user=user)
+        if instance == "duplicate":
+            message = "You already have a key with that name."
+        elif instance:
+            message = "Saved:\n{}: {}".format(instance.key, instance.val)
+        else:
+            message = "Could not save key."
+        return message
+
+    def list_keys(self, args, user):
+        instances = AttrModel.list(args=args, user=user)
+        message = "Listing attributes for {}".format(user)
+        for i in instances:
+            message += "\n{}: {}".format(i.key, i.val)
+        return message
+
+    def delete_key(self, args, user):
+        deleted_name = AttrModel.delete(args=args, user=user)
+        if deleted_name:
+            message = "Successfully deleted {}".format(deleted_name)
+        else:
+            message = "Could not delete key. "
+        return message
