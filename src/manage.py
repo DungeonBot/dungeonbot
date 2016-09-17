@@ -6,6 +6,7 @@ from flask_migrate import Migrate, MigrateCommand
 
 from dungeonbot import app
 from dungeonbot import models
+from dungeonbot.models import (highlights, karma, quest)
 
 def _make_context():
     return dict(app=app, db=models.db, models=models)

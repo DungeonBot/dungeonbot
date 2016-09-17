@@ -4,6 +4,7 @@ from dungeonbot.plugins import (
     karma,
     roll,
     quest,
+    highlights
 )
 
 
@@ -31,6 +32,7 @@ class EventHandler(object):
             'karma_bottom': karma.KarmaBottomPlugin,
             'roll': roll.RollPlugin,
             'quest': quest.QuestPlugin,
+            'log': highlights.HighlightPlugin
         }
 
         evt_string = self.event['text']
