@@ -28,6 +28,7 @@ Examples:
 """
 
     def run(self):
+        """Run Attr Plugin."""
         bot = SlackHandler()
         user = bot.get_user_from_id(self.event["user"])
 
@@ -36,6 +37,7 @@ Examples:
         bot.make_post(self.event, message)
 
     def process_attr(self, args, user):
+        """Process attribute roll."""
         commands = {
             "get": self.get_key,
             "set": self.set_key,
@@ -51,6 +53,7 @@ Examples:
             return "Not a valid command."
 
     def get_key(self, args, user):
+        """Get saved key."""
         instance = AttrModel.get(args=args, user=user)
         if instance:
             message = "{}: {}".format(instance.key, instance.val)
@@ -59,6 +62,7 @@ Examples:
         return message
 
     def set_key(self, args, user):
+        """Set new key."""
         instance = AttrModel.set(args=args, user=user)
         if instance == "duplicate":
             message = "You already have a key with that name."
@@ -69,6 +73,7 @@ Examples:
         return message
 
     def list_keys(self, args, user):
+        """List keys belonging to requesting user."""
         instances = AttrModel.list(args=args, user=user)
         message = "Listing attributes for {}".format(user)
         for i in instances:
@@ -76,6 +81,7 @@ Examples:
         return message
 
     def delete_key(self, args, user):
+        """Delete specified key."""
         deleted_name = AttrModel.delete(args=args, user=user)
         if deleted_name:
             message = "Successfully deleted {}".format(deleted_name)
