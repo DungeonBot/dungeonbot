@@ -1,7 +1,7 @@
 from dungeonbot.plugins.primordials import BangCommandPlugin
 from dungeonbot.handlers.slack import SlackHandler
 
-from dungeonbot.plugins.die_roll import DieRoll
+from dungeonbot.plugins.helpers.die_roll import DieRoll
 from dungeonbot.models.roll import RollModel
 
 
