@@ -1,7 +1,7 @@
 from dungeonbot.models import db
 
 
-class RollModel(db.model):
+class RollModel(db.Model):
     """Model for saved rolls.
 
     Saved rolls will have a string id key, identifying name of roll.

@@ -255,23 +255,29 @@ class ExampleModel(db.Model):
         )
 ```
 
+
 #### Testing
 
 ##### Writing tests
 
-Create your test script in the `src/dungeonbot` directory, at the same level as `app_config.py`.
+Create your test script in the `src/dungeonbot/tests` directory.
 
-In order to run any tests that touch the database, you will need to have set up a testing database.
-The best option is to call your own database `dungeonbot_test`.
-That way you can use the `BaseTest` class in `conftest.py`, which sets up a connection to the test database and pulls in the `dungeonbot` app.
+In order to run any tests that touch the database, you will need to have set
+up a testing database. The best option is to create a database called
+`dungeonbot_test`; that way you can use the `BaseTest` class in 
+`src/dungeonbot/conftest.py`, which sets up a connection to the test database
+and pulls in the `dungeonbot` app.
+
 
 ##### Running tests
 
-The command for running tests comes from `manage.py`, and is invoked as follows:
+The command for running tests comes from `manage.py`, and is invoked as
+follows:
 
 ```python
-$ python manage.py test
+python manage.py test
 ```
 
 Currently, testing is done with `py.test` and includes coverage.
-Make sure that you've pip-installed the `pipreqs.txt` file to have access to the coverage package.
+Make sure that you've pip-installed the `pipreqs.txt` file to have access to
+the coverage package.

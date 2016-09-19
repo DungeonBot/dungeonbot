@@ -1,6 +1,6 @@
-from .conftest import BaseTest
+from dungeonbot.conftest import BaseTest
 
-from .models.quest import QuestModel
+from dungeonbot.models.quest import QuestModel
 
 from datetime import datetime
 
