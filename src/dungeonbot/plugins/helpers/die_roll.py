@@ -10,7 +10,6 @@ class DieRoll(object):
         self.roll_str = roll = roll_str
         self.operator = "+"
         self.action = valid_flags[flag] if flag else self.roll_die
-
         self.modifier = 0
         self.message = ""
         valid_operators = ["+", "-"]
