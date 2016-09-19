@@ -39,63 +39,98 @@ examples:
 ```"""
 
     def run(self):
-        """Run roll plugin."""
+        """Run Roll Plugin."""
         bot = SlackHandler()
 
-        args = self.arg_string.replace(" ", "").split(',')
-        # user = bot.get_user_from_id(self.event['user'])
+        user = bot.get_user_from_id(self.event['user'])
+        args = self.arg_string.split(",")
 
         message = "_*Roll result{} for {}:*_".format(
             "s" if len(args) > 1 else "",
-            bot.get_user_from_id(self.event['user'])
+            user
         )
 
         for item in args:
-            message += "\n" + self.process_roll(item)
+            message += "\n" + self.process_roll(item, user)
 
         bot.make_post(self.event, message)
 
-    def process_roll(self, roll_str):
-        """Process Roll string."""
-        # Save new Roll
-        bot = SlackHandler()
-        user = bot.get_user_from_id(self.event['user'])
+    def process_roll(self, user_input, user):
+        """Parse user input and delegate to appropriate roll func."""
+        args = user_input.split()
 
-        if roll_str.startswith("save"):
-            parsed = RollModel.parse_key_val_pairs(roll_str.lstrip("save"))
-            if parsed:
-                instance = RollModel.new(parsed[0], parsed[1], user)
-                return "Successfully Saved {}: {}".format(instance.key, instance.val)
-            else:
-                return "Not a valid Key/Value Pair"
+        commands = {
+            "save": self.save_roll,
+            "list": self.list_rolls,
+            "delete": self.delete_roll,
+        }
 
-        elif roll_str.startswith("delete"):
-            roll_str = roll_str.lstrip("delete")
-            instance = RollModel.get_by_key(key=roll_str, user=user)
-            if instance:
-                return RollModel.delete(instance)
-            else:
-                return "Item Not found!"
-
-        # list all saved rolls
-        elif roll_str.startswith("list"):
-            how_many = 10
-            message = "*Saved Rolls for {}:*".format(user)
-            roll_str = roll_str.lstrip("list")
-            if roll_str:
-                how_many = int(roll_str)
-            saved = RollModel.list(how_many=how_many, user=user)
-            for x in saved:
-                message += "\n{}: {}".format(x.key, x.val)
-            return message
+        if args[0] in commands:
+            return commands[args[0]](args[1:], user)
         else:
-            name = None
-            saved_roll = RollModel.get_by_key(key=roll_str, user=user)
-            if saved_roll:
-                # if roll is saved, assign the saved rolls value to roll_str
-                roll_str = saved_roll.val
-                name = saved_roll.key
+            return self.make_roll(args, user)
 
-            # Create new roll object, and print result of obj's action.
-            r = DieRoll(roll_str)
-            return r.print_results(r.action(), name)
+    def save_roll(self, args, user):
+        """Save new roll as key/val pair for requesting user."""
+        key = args[0]
+        val = "".join(args[1:])
+        if not (key and val):
+            return "Not a valid Key/Pair."
+        instance = RollModel.new(key, val, user)
+        return "Successfully Saved {}: {}".format(
+            instance.key,
+            instance.val
+        )
+
+    def delete_roll(self, args, user):
+        """Delete existing roll via key."""
+        key = "".join(args)
+        instance = RollModel.get_by_key(key=key, user=user)
+        if instance:
+            return RollModel.delete(instance)
+        else:
+            return "Cannot find item {}".format(key)
+
+    def list_rolls(self, args, user):
+        """List requesting user's saved rolls.
+
+        If additional argument is passed in, use as limit,
+        otherwise limit to 10 results returned.
+        """
+        message = "*Saved Rolls for {}:*".format(user)
+
+        how_many = int("".join(args)) if args else 10
+
+        saved = RollModel.list(how_many=how_many, user=user)
+
+        for x in saved:
+            message += "\n{}: {}".format(x.key, x.val)
+        return message
+
+    def make_roll(self, args, user):
+        """Roll given roll string and return result.
+
+        If given roll string is existing saved string, look
+        up entry and roll the associated value.
+        """
+        roll_flags = ["a", "d"]
+        name = None
+
+        if args[0].lstrip("-") in roll_flags:
+            flag = args[0].lstrip("-")
+            roll_str = "".join(args[1:])
+        else:
+            flag = None
+            roll_str = "".join(args)
+
+        saved_roll = RollModel.get_by_key(key=roll_str, user=user)
+
+        if saved_roll:
+            name = saved_roll.key
+            roll_str = saved_roll.val.lstrip("-")
+            if roll_str[0] in roll_flags:
+                flag = roll_str[0]
+                roll_str = roll_str[1:]
+
+        r = DieRoll(roll_str, flag)
+        return r.print_results(r.action(), name)

@@ -1,25 +1,19 @@
 class DieRoll(object):
     """Roll object that parses roll string and calls appropriate function."""
 
-    def __init__(self, roll_str):
+    def __init__(self, roll_str, flag):
         """Initialize Die roll object by breaking apart roll string."""
-        self.roll_str = roll = roll_str.lstrip("-")
-        self.operator = "+"
-        # make into a property?
-        self.action = self.roll_die
-
-        self.modifier = 0
-        self.message = ""
-        valid_operators = ["+", "-"]
         valid_flags = {
             "a": self.advantage,
             "d": self.disadvantage
         }
+        self.roll_str = roll = roll_str
+        self.operator = "+"
+        self.action = valid_flags[flag] if flag else self.roll_die
 
-        for f in valid_flags:
-            if roll.startswith(f):
-                self.action = valid_flags[f]
-                self.roll_str = roll = roll[len(f):]
+        self.modifier = 0
+        self.message = ""
+        valid_operators = ["+", "-"]
 
         for o in valid_operators:
             if o in roll:
