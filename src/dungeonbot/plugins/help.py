@@ -9,6 +9,7 @@ from dungeonbot.plugins.karma import (
 )
 from dungeonbot.plugins.roll import RollPlugin
 from dungeonbot.plugins.quest import QuestPlugin
+from dungeonbot.plugins.highlights import HighlightPlugin
 
 
 class HelpPlugin(BangCommandPlugin):
@@ -20,7 +21,8 @@ class HelpPlugin(BangCommandPlugin):
         'karma_top': KarmaTopPlugin,
         'karma_bottom': KarmaBottomPlugin,
         'roll': RollPlugin,
-        'quest': QuestPlugin
+        'quest': QuestPlugin,
+        'log': HighlightPlugin
     }
 
     help_text = """```
