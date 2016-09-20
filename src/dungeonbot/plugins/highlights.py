@@ -1,6 +1,7 @@
 from dungeonbot.plugins.primordials import BangCommandPlugin
 from dungeonbot.handlers.slack import SlackHandler
 from dungeonbot.models.highlights import HighlightModel
+import calendar
 
 
 class HighlightPlugin(BangCommandPlugin):
@@ -60,5 +61,7 @@ class HighlightPlugin(BangCommandPlugin):
         highlights = HighlightModel.list(how_many)
         message = "*{} Most Recent Campaign Highlights*".format(how_many)
         for h in highlights:
-            message += "\n{}".format(h.text)
+            month = calendar.month_abbr[h.created.month]
+            day = h.created.day
+            message += "\n*{} {}* - {}".format(month, day, h.text)
         return message
