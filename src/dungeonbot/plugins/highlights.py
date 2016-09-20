@@ -38,6 +38,11 @@ class HighlightPlugin(BangCommandPlugin):
         commands = {"add": self.add, "list": self.list_highlights}
         command = args[0]
         args = args[1:]
+        if command not in commands:
+            return """
+                Whoops! That isn't a valid command.
+                Maybe try !help log if you are stuck
+            """
         return commands[command](args)
 
     def add(self, args):
