@@ -76,6 +76,8 @@ examples:
         val = "".join(args[1:])
         if not (key and val):
             return "Not a valid Key/Pair."
+        if not (val[0].isdigit() and val[1] == "d" and val[2].isdigit()):
+            return "Not a properly formatted roll."
         instance = RollModel.new(key, val, user)
         return "Successfully Saved {}: {}".format(
             instance.key,
@@ -115,12 +117,13 @@ examples:
         """
         roll_flags = ["a", "d"]
         name = None
+        flag = None
+        args[0] = args[0].lstrip("-")
 
-        if args[0].lstrip("-") in roll_flags:
-            flag = args[0].lstrip("-")
+        if args[0] in roll_flags:
+            flag = args[0]
             roll_str = "".join(args[1:])
         else:
-            flag = None
             roll_str = "".join(args)
 
         saved_roll = RollModel.get_by_key(key=roll_str, user=user)
