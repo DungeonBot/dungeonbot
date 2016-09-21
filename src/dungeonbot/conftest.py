@@ -5,6 +5,8 @@ from dungeonbot.models import db
 
 from flask_testing import TestCase
 
+import os
+
 
 class BaseTest(TestCase):
     """The base class that any test hitting the db will use."""
@@ -13,9 +15,12 @@ class BaseTest(TestCase):
 
     def create_app(self):
         """Create an app configured for testing."""
-        dburi = app.config["SQLALCHEMY_DATABASE_URI"].split("/")
-        dburi[-1] = "dungeonbot_test"
-        dburi = "/".join(dburi)
+        if os.getenv("DB_URL"):
+            dburi = os.getenv("DB_URL")
+        else:
+            dburi = app.config["SQLALCHEMY_DATABASE_URI"].split("/")
+            dburi[-1] = "dungeonbot_test"
+            dburi = "/".join(dburi)
 
         app.config.update(SQLALCHEMY_DATABASE_URI=dburi)
 

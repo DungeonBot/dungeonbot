@@ -19,6 +19,7 @@ from dungeonbot.models import (
 	attribute
 )
 import os
+import subprocess
 
 
 def _make_context():
@@ -44,7 +45,38 @@ manager.add_command("db", MigrateCommand)
 @manager.command
 def test():
     """Run testing suite."""
-    os.system("py.test -v --cov=dungeonbot --cov-report=term-missing")
+    cmd = "py.test -v --cov=dungeonbot --cov-report=term-missing"
+
+    print(
+        """
+Running test suite with command:
+{}
+
+###############################################################################
+NOTE
+
+Do not use 'manage.py test' when testing in CI, or in any other script which
+requires the detection of a nonzero exit status to signify that the tests have
+failed. Instead, use the above command directly.
+
+Any nonzero (=failing) exit status of the 'py.test' process will be swallowed
+by the wrapping 'manage.py test' Python process, which will return a zero
+(=successful) status unless a Python exception occurs. The tests will fail,
+but the exit status of 'manage.py test' will say that everything is fine.
+
+Compare for yourself, using 'echo $?' to grab the most recent exit status (make
+sure there is at least one failing test in the test suite):
+
+$  {} ; echo $?
+
+vs
+
+$  python manage.py test ; echo $?
+###############################################################################
+""".format(cmd, cmd)
+    )
+
+    os.system(cmd)
 
 
 if __name__ == '__main__':
