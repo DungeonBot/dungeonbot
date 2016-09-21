@@ -1,7 +1,8 @@
 from dungeonbot.plugins.primordials import BangCommandPlugin
 from dungeonbot.handlers.slack import SlackHandler
 
-from dungeonbot.plugins.die_roll import DieRoll
+from dungeonbot.plugins.helpers.die_roll import DieRoll
+from dungeonbot.models.roll import RollModel
 
 
 class RollPlugin(BangCommandPlugin):
@@ -38,23 +39,101 @@ examples:
 ```"""
 
     def run(self):
-        """Run roll plugin."""
+        """Run Roll Plugin."""
         bot = SlackHandler()
 
-        args = self.arg_string.replace(" ", "").split(',')
+        user = bot.get_user_from_id(self.event['user'])
+        args = self.arg_string.split(",")
 
         message = "_*Roll result{} for {}:*_".format(
             "s" if len(args) > 1 else "",
-            bot.get_user_from_id(self.event['user'])
+            user
         )
 
         for item in args:
-            message += "\n" + self.process_roll(item)
+            message += "\n" + self.process_roll(item, user)
 
         bot.make_post(self.event, message)
 
-    def process_roll(self, roll_str):
-        """Process Roll string."""
-        r = DieRoll(roll_str)
-        result = r.action()
-        return r.print_results(result)
+    def process_roll(self, user_input, user):
+        """Parse user input and delegate to appropriate roll func."""
+        args = user_input.split()
+
+        commands = {
+            "save": self.save_roll,
+            "list": self.list_rolls,
+            "delete": self.delete_roll,
+        }
+
+        if args[0] in commands:
+            return commands[args[0]](args[1:], user)
+        else:
+            return self.make_roll(args, user)
+
+    def save_roll(self, args, user):
+        """Save new roll as key/val pair for requesting user."""
+        key = args[0]
+        val = "".join(args[1:])
+        if not (key and val):
+            return "Not a valid Key/Pair."
+        if not (val[0].isdigit() and val[1] == "d" and val[2].isdigit()):
+            return "Not a properly formatted roll."
+        instance = RollModel.new(key, val, user)
+        return "Successfully Saved {}: {}".format(
+            instance.key,
+            instance.val
+        )
+
+    def delete_roll(self, args, user):
+        """Delete existing roll via key."""
+        key = "".join(args)
+        instance = RollModel.get_by_key(key=key, user=user)
+        if instance:
+            return RollModel.delete(instance)
+        else:
+            return "Cannot find item {}".format(key)
+
+    def list_rolls(self, args, user):
+        """List requesting user's saved rolls.
+
+        If additional argument is passed in, use as limit,
+        otherwise limit to 10 results returned.
+        """
+        message = "*Saved Rolls for {}:*".format(user)
+
+        how_many = int("".join(args)) if args else 10
+
+        saved = RollModel.list(how_many=how_many, user=user)
+
+        for x in saved:
+            message += "\n{}: {}".format(x.key, x.val)
+        return message
+
+    def make_roll(self, args, user):
+        """Roll given roll string and return result.
+
+        If given roll string is existing saved string, look
+        up entry and roll the associated value.
+        """
+        roll_flags = ["a", "d"]
+        name = None
+        flag = None
+        args[0] = args[0].lstrip("-")
+
+        if args[0] in roll_flags:
+            flag = args[0]
+            roll_str = "".join(args[1:])
+        else:
+            roll_str = "".join(args)
+
+        saved_roll = RollModel.get_by_key(key=roll_str, user=user)
+
+        if saved_roll:
+            name = saved_roll.key
+            roll_str = saved_roll.val.lstrip("-")
+            if roll_str[0] in roll_flags:
+                flag = roll_str[0]
+                roll_str = roll_str[1:]
+
+        r = DieRoll(roll_str, flag)
+        return r.print_results(r.action(), name)

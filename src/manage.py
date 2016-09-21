@@ -5,6 +5,12 @@ from flask_migrate import Migrate, MigrateCommand
 
 from dungeonbot import app
 from dungeonbot import models
+from dungeonbot.models import (
+    karma,
+    quest,
+    roll,
+)
+
 
 from dungeonbot.models import (
     karma,
