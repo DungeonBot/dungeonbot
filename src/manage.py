@@ -18,7 +18,6 @@ from dungeonbot.models import (
     roll,
 	attribute
 )
-
 import os
 
 
