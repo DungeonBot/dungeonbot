@@ -1,3 +1,5 @@
+"""Define logic for the Roll plugin."""
+
 from dungeonbot.plugins.primordials import BangCommandPlugin
 from dungeonbot.handlers.slack import SlackHandler
 

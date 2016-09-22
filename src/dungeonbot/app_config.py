@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+"""Configure the Flask app."""
+
 import os
 from flask import Flask
 

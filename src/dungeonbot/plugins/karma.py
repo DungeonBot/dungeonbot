@@ -1,3 +1,5 @@
+"""Define logic for the Karma plugin."""
+
 from dungeonbot.plugins.primordials import (
     BangCommandPlugin,
     SuffixCommandPlugin,
@@ -7,9 +9,18 @@ from dungeonbot.models.karma import KarmaModel
 
 
 class KarmaAssistant(object):
-    def check_if_correlates_to_userid(self, event, possible_username):
-        """Returns a Slack user ID or None"""
+    """Helper class for KarmaPlugin.
 
+    Provides methods that the plugin would use more than once.
+
+    """
+
+    def check_if_correlates_to_userid(self, event, possible_username):
+        """Check if string is a username that maps to a Slack user ID.
+
+        Returns a Slack user ID or None.
+
+        """
         bot = SlackHandler()
         user_id = bot.get_userid_from_name(possible_username)
 
@@ -22,8 +33,11 @@ class KarmaAssistant(object):
                 return user_id
 
     def check_if_correlates_to_username(self, event, possible_userid):
-        """Returns a Slack username or None"""
+        """Check if string is a Slack user ID that maps to a username.
 
+        Returns a Slack username or None.
+
+        """
         bot = SlackHandler()
         username = bot.get_user_from_id(possible_userid)
 
@@ -37,14 +51,18 @@ class KarmaAssistant(object):
 
 
 class KarmaModifyPlugin(SuffixCommandPlugin):
+    """Add positive or negative karma to a string."""
+
     def run(self):
-        """
+        """Run the plugin.
+
         self.arg_string: just a string that's getting karma
         self.suffix: '++' or '--'
 
-        Should check if the arg_string is a string that correlates to a userid.
-        If so, attribute the karma to that userid. Otherwise, just use the
-        string.
+        Should check if the arg_string is a string that correlates to a
+        userid. If so, attribute the karma to that userid. Otherwise,
+        just use the string.
+
         """
         ka = KarmaAssistant()
         possible_userid = ka.check_if_correlates_to_userid(
@@ -72,6 +90,8 @@ class KarmaModifyPlugin(SuffixCommandPlugin):
 
 
 class KarmaPlugin(BangCommandPlugin):
+    """Post karma status for a given string."""
+
     help_text = '\n'.join([
         "```",
         "command:",
@@ -110,7 +130,8 @@ class KarmaPlugin(BangCommandPlugin):
     ])
 
     def run(self):
-        """
+        """Run the plugin.
+
         Before querying, should check if the target is a string that correlates
         to a userid. If so, query the database using that userid. Otherwise,
         just use the target string.
@@ -119,12 +140,12 @@ class KarmaPlugin(BangCommandPlugin):
         record's string_id is actually a Slack userid that correlates to a
         username. If so, use the username in the message posted to Slack.
         Otherwise, use the record's string_id.
+
         """
-
         bot = SlackHandler()
-        KA = KarmaAssistant()
+        ka = KarmaAssistant()
 
-        possible_userid = KA.check_if_correlates_to_userid(
+        possible_userid = ka.check_if_correlates_to_userid(
             self.event,
             self.arg_string,
         )
@@ -136,12 +157,15 @@ class KarmaPlugin(BangCommandPlugin):
         if karma_entry:
             entry_name = karma_entry.string_id
 
-            possible_username = KA.check_if_correlates_to_username(
+            possible_username = ka.check_if_correlates_to_username(
                 self.event,
                 entry_name,
             )
 
-            subject_name = possible_username if possible_username else entry_name
+            if possible_username:
+                subject_name = possible_username
+            else:
+                subject_name = entry_name
 
             message = "*{}* has *{}* karma _({} ++, {} --)_".format(
                 subject_name,
@@ -158,6 +182,8 @@ class KarmaPlugin(BangCommandPlugin):
 
 
 class KarmaNewestPlugin(BangCommandPlugin):
+    """Post recently-created karma entries."""
+
     help_text = """```
 command:
     !karma_newest
@@ -177,8 +203,9 @@ examples:
 ```"""
 
     def run(self):
+        """Run the plugin."""
         bot = SlackHandler()
-        KA = KarmaAssistant()
+        ka = KarmaAssistant()
         how_many = 5
 
         if self.arg_string:
@@ -198,7 +225,7 @@ examples:
         karma_objects = KarmaModel.list_newest(how_many=how_many)
 
         for item in karma_objects:
-            possible_username = KA.check_if_correlates_to_username(
+            possible_username = ka.check_if_correlates_to_username(
                 self.event,
                 item.string_id,
             )
@@ -221,6 +248,8 @@ examples:
 
 
 class KarmaTopPlugin(BangCommandPlugin):
+    """Post highest-karma karma entries."""
+
     help_text = """```
 command:
     !karma_top
@@ -240,8 +269,9 @@ examples:
 ```"""
 
     def run(self):
+        """Run the plugin."""
         bot = SlackHandler()
-        KA = KarmaAssistant()
+        ka = KarmaAssistant()
         how_many = 5
 
         if self.arg_string:
@@ -261,7 +291,7 @@ examples:
         karma_objects = KarmaModel.list_highest(how_many=how_many)
 
         for item in karma_objects:
-            possible_username = KA.check_if_correlates_to_username(
+            possible_username = ka.check_if_correlates_to_username(
                 self.event,
                 item.string_id,
             )
@@ -284,6 +314,8 @@ examples:
 
 
 class KarmaBottomPlugin(BangCommandPlugin):
+    """Post lowest-karma karma entries."""
+
     help_text = """```
 command:
     !karma_bottom
@@ -303,8 +335,9 @@ examples:
 ```"""
 
     def run(self):
+        """Run the plugin."""
         bot = SlackHandler()
-        KA = KarmaAssistant()
+        ka = KarmaAssistant()
         how_many = 5
 
         if self.arg_string:
@@ -324,7 +357,7 @@ examples:
         karma_objects = KarmaModel.list_lowest(how_many=how_many)
 
         for item in karma_objects:
-            possible_username = KA.check_if_correlates_to_username(
+            possible_username = ka.check_if_correlates_to_username(
                 self.event,
                 item.string_id,
             )

@@ -1,3 +1,5 @@
+"""Initialize database connection."""
+
 from dungeonbot import app
 from flask_sqlalchemy import SQLAlchemy
 
