@@ -16,8 +16,8 @@ from dungeonbot.models import (
     karma,
     quest,
     roll,
+	attribute
 )
-
 import os
 
 
