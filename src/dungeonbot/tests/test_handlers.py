@@ -2,7 +2,7 @@
 
 from dungeonbot.conftest import BaseTest
 
-from dungeonbot.handlers.event import EventHandler
+from dungeonbot.handlers.event import EventHandler, SlackHandler
 
 from unittest import mock
 
@@ -26,7 +26,7 @@ from unittest import mock
 #     }
 
 
-class EventHandlerUnitTest(BaseTest):
+class EventHandlerUnitTests(BaseTest):
     """Tests for the Event Handler."""
 
     def setUp(self):
@@ -174,3 +174,149 @@ class EventHandlerUnitTest(BaseTest):
             handler.parse_suffix_command()
             for val in mock_suffixes.values():
                 self.assertFalse(val.called)
+
+
+class SlackHandlerUnitTests(BaseTest):
+    """Tests for the Slack Handler."""
+
+    def setUp(self):
+        """Create an event as processed by the `/` route."""
+        super().setUp()
+
+        self.mock_event = {
+            "text": "",
+            "type": "message",
+            "user": "U1N796T52",
+            "ts": "1472164181.000061",
+            "channel": "C2377T63B",
+            "event_ts": "1472164181.000061",
+            "team_id": "T1N7FEJHE",
+        }
+
+    def test_vocal_make_post(self):
+        """Test that vocal switch works."""
+        mock_func = mock.Mock(name="mock_func")
+        handler = SlackHandler()
+
+        with mock.patch.object(handler.slack.chat, "post_message", mock_func):
+            handler.vocal = True
+            message = "Prove to me that you work."
+            handler.make_post(self.mock_event, message)
+
+            self.assertTrue(mock_func.called_with(
+                self.mock_event['channel'],
+                message,
+                as_user=True
+            ))
+
+    def test_silent_make_post(self):
+        """Test that vocal switch works."""
+        mock_func = mock.Mock(name="mock_func")
+
+        from auxiliaries import helpers
+        with mock.patch.object(helpers, "eprint", mock_func):
+            handler = SlackHandler()
+            handler.vocal = False
+            message = "Prove to me that you work."
+            handler.make_post(self.mock_event, message)
+
+            self.assertTrue(mock_func.called_with(message))
+
+    def test_vocal_get_userid_from_name(self):
+        """Test that a Slack ID is returned from a username."""
+        mock_func = mock.Mock(name="mock_func")
+        handler = SlackHandler()
+        handler.vocal = True
+
+        with mock.patch.object(handler.slack.users, "get_user_id", mock_func):
+            username = "literally anything"
+            handler.get_userid_from_name(username)
+            self.assertTrue(mock_func.called_with(username))
+
+    def test_silent_get_userid_from_name(self):
+        """Test that a Slack ID is returned from a username."""
+        handler = SlackHandler()
+        handler.vocal = False
+        username = "Literally anything"
+        self.assertEqual(
+            handler.get_userid_from_name(username),
+            "A_SLACK_USERID"
+        )
+
+    def test_vocal_get_username_from_id(self):
+        """Test that a Slack username is returned from an ID."""
+        mock_func = mock.Mock(name="mock_func")
+        mock_func.return_value = {"name": "A_SLACK_USERNAME"}
+        handler = SlackHandler()
+        handler.vocal = True
+        slack_id = "000111000"
+        with mock.patch.object(handler, "get_user_obj_from_id", mock_func):
+            self.assertEqual(
+                handler.get_username_from_id(slack_id),
+                "A_SLACK_USERNAME"
+            )
+            self.assertTrue(mock_func.called_with(slack_id))
+
+    def test_vocal_get_username_from_id_when_no_user_found(self):
+        """Test that a Slack username is returned from an ID."""
+        mock_func = mock.Mock(name="mock_func")
+        mock_func.return_value = None
+        handler = SlackHandler()
+        handler.vocal = True
+        slack_id = "000111000"
+        with mock.patch.object(handler, "get_user_obj_from_id", mock_func):
+            self.assertEqual(
+                handler.get_username_from_id(slack_id),
+                None
+            )
+            self.assertTrue(mock_func.called_with(slack_id))
+
+    def test_silent_get_username_from_id(self):
+        """Test that a Slack username is returned from an ID."""
+        handler = SlackHandler()
+        handler.vocal = False
+        slack_id = "000111000"
+        self.assertEqual(
+            handler.get_username_from_id(slack_id),
+            "A_SLACK_USERNAME"
+        )
+
+    def test_get_user_obj_from_id(self):
+        """Test that function properly parses a Slack member dict."""
+        mock_func = mock.Mock(name="mock_func")
+        retval = [
+            {
+                'id': 'SLACK_USERID',
+                'some_shit': True,
+                'profile': {
+                    'more_shit': True,
+                },
+                'other_shit': True,
+            },
+            {
+                'id': '000111000',
+                'some_shit': True,
+                'profile': {
+                    'more_shit': True,
+                },
+                'other_shit': True,
+            },
+        ]
+        mock_func.return_value = retval
+
+        handler = SlackHandler()
+        slack_id = "000111000"
+
+        with mock.patch.object(handler, "_fetch_user_obj", mock_func):
+            self.assertEqual(
+                handler.get_user_obj_from_id(slack_id),
+                {
+                    'id': '000111000',
+                    'some_shit': True,
+                    'profile': {
+                        'more_shit': True,
+                    },
+                    'other_shit': True,
+                }
+            )
+            self.assertTrue(mock_func.called_with(slack_id))

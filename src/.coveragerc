@@ -1,0 +1,15 @@
+[run]
+# branch = True
+
+omit =
+    dungeonbot/app_config.py
+    dungeonbot/conftest.py
+
+
+[report]
+show_missing = True
+
+skip_covered = True
+
+exclude_lines =
+    def _fetch_user_obj

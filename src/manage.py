@@ -19,7 +19,6 @@ from dungeonbot.models import (
 	attribute
 )
 import os
-import subprocess
 
 
 def _make_context():
@@ -45,7 +44,7 @@ manager.add_command("db", MigrateCommand)
 @manager.command
 def test():
     """Run testing suite."""
-    cmd = "py.test -v --cov=dungeonbot --cov-report=term-missing"
+    cmd = "py.test -v --cov=dungeonbot"
 
     print(
         """
