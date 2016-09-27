@@ -23,4 +23,4 @@ test:
     - apk add postgresql-dev
     - pip3 install -r pipreqs.txt
     - cd src
-    - py.test -v --cov=dungeonbot --cov-report=term-missing
+    - py.test --cov=dungeonbot -v

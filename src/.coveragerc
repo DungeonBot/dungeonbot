@@ -1,5 +1,4 @@
 [run]
-# branch = True
 
 omit =
     dungeonbot/app_config.py
@@ -7,9 +6,8 @@ omit =
 
 
 [report]
-show_missing = True
 
-skip_covered = True
+show_missing = True
 
 exclude_lines =
     def _fetch_user_obj
