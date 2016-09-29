@@ -30,7 +30,7 @@ Examples:
     def run(self):
         """Run Attr Plugin."""
         bot = SlackHandler()
-        user = bot.get_user_from_id(self.event["user"])
+        user = self.event["user"]
 
         args = self.arg_string.split()
         message = self.process_attr(args, user)
@@ -44,7 +44,6 @@ Examples:
             "list": self.list_keys,
             "delete": self.delete_key,
         }
-
         command = args[0]
         args = args[1:]
         if command in commands:
@@ -74,8 +73,8 @@ Examples:
 
     def list_keys(self, args, user):
         """List keys belonging to requesting user."""
-        instances = AttrModel.list(args=args[0], user=user)
-        message = "Listing attributes for {}".format(user)
+        instances = AttrModel.list(args=args[0] if args else None, user=user)
+        message = "Listing attributes for {}".format(user["name"])
         for i in instances:
             message += "\n{}: {}".format(i.key, i.val)
         return message
@@ -86,5 +85,5 @@ Examples:
         if deleted_name:
             message = "Successfully deleted {}".format(deleted_name)
         else:
-            message = "Could not delete key. "
+            message = "Could not delete key."
         return message
