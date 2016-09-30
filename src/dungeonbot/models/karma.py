@@ -28,7 +28,7 @@ class KarmaModel(db.Model):
     created = db.Column(
         db.DateTime,
         nullable=False,
-        default=datetime.utcnow(),
+        default=datetime.utcnow,
     )
     string_id = db.Column(db.String(256))
     upvotes = db.Column(db.Integer)
@@ -144,7 +144,7 @@ class KarmaModel(db.Model):
     def __repr__(self):
         """Define shell representation of karma objects."""
         return (
-            "<dungeonbot.models.KarmaModel(" +
+            "<dungeonbot.models.karma.KarmaModel(" +
             "string_id={}, upvotes={}, downvotes={}" +
             ") [id: {}, karma: {}, created: {}]>"
         ).format(

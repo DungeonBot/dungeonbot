@@ -18,6 +18,7 @@ class SlackHandler(object):
         """
         self.slack = Slacker(os.environ.get("BOT_ACCESS_TOKEN"))
         self.vocal = os.getenv("PERMISSION_TO_SPEAK")
+        self.eprint = eprint
 
     def make_post(self, event, message):
         """Post a message to Slack."""
@@ -29,40 +30,39 @@ class SlackHandler(object):
             )
 
         else:
-            message = '\n\n' + message + '\n'
-            eprint("Message that would have been sent to Slack:", message)
+            self.eprint(
+                "Message that would have been sent to Slack:\n\n{}\n".format(
+                    message
+                )
+            )
 
     def get_userid_from_name(self, username):
         """Lookup Slack user ID given username."""
         if self.vocal:
             return self.slack.users.get_user_id(username)
-        else:
-            return "A_SLACK_USERID"
 
     def get_username_from_id(self, user_id):
         """Lookup Slack username given user ID."""
         if self.vocal:
             user_obj = self.get_user_obj_from_id(user_id)
             return user_obj['name'] if user_obj else None
-        else:
-            return "A_SLACK_USERNAME"
 
     def get_user_obj_from_id(self, user_id):
         """Fetch a user dict object from Slack."""
-        members_dict = self._fetch_user_obj(user_id)
+        members_dict = self._fetch_users_list()
         for entry in members_dict:
             if user_id in entry['id']:
                 return entry
 
-    def _fetch_user_obj(self, user_id):
+    def _fetch_users_list(self):
         if self.vocal:
             return self.slack.users.list().body['members']
 
         else:
-            return {
+            return [{
                 'color': '99a949',
                 'deleted': False,
-                'id': 'SLACK_USERID',
+                'id': 'A_SLACK_USERID',
                 'is_admin': False,
                 'is_bot': True,
                 'is_owner': False,
@@ -93,4 +93,4 @@ class SlackHandler(object):
                 'tz': None,
                 'tz_label': 'Pacific Daylight Time',
                 'tz_offset': -25200
-            }
+            }]

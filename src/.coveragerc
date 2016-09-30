@@ -3,6 +3,8 @@
 omit =
     dungeonbot/app_config.py
     dungeonbot/conftest.py
+    dungeonbot/tests/*
+    dungeonbot/*__init__.py
 
 
 [report]
@@ -10,4 +12,4 @@ omit =
 show_missing = True
 
 exclude_lines =
-    def _fetch_user_obj
+    def _fetch_users_list
