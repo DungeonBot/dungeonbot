@@ -10,6 +10,7 @@ from dungeonbot.plugins.karma import (
 from dungeonbot.plugins.roll import RollPlugin
 from dungeonbot.plugins.quest import QuestPlugin
 from dungeonbot.plugins.highlights import HighlightPlugin
+from dungeonbot.plugins.attribute import AttrPlugin
 
 
 class HelpPlugin(BangCommandPlugin):
@@ -22,7 +23,8 @@ class HelpPlugin(BangCommandPlugin):
         'karma_bottom': KarmaBottomPlugin,
         'roll': RollPlugin,
         'quest': QuestPlugin,
-        'log': HighlightPlugin
+        'log': HighlightPlugin,
+        'attr': AttrPlugin,
     }
 
     help_text = """```
@@ -31,6 +33,7 @@ available help topics:
     karma
     roll
     quest
+    attr
 
 Try `!help [topic]` for information on a specific topic.
 ```"""
