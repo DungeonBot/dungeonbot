@@ -14,6 +14,8 @@ class HighlightModel(db.Model):
     @classmethod
     def new(cls, args=None, session=None):
         """Create and store new Highlight."""
+        if not args:
+            return
         if session is None:
             session = db.session
         instance = cls(text=args)
