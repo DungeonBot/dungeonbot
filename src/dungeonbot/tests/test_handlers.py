@@ -203,24 +203,27 @@ class SlackHandlerUnitTests(BaseTest):
             message = "Prove to me that you work."
             handler.make_post(self.mock_event, message)
 
-            self.assertTrue(mock_func.called_with(
+            mock_func.assert_called_with(
                 self.mock_event['channel'],
                 message,
                 as_user=True
-            ))
+            )
 
     def test_silent_make_post(self):
         """Test that vocal switch works."""
-        mock_func = mock.Mock(name="mock_func")
+        mock_eprint = mock.MagicMock()
+        handler = SlackHandler()
+        handler.vocal = False
+        message = "Prove to me that you work."
 
-        from auxiliaries import helpers
-        with mock.patch.object(helpers, "eprint", mock_func):
-            handler = SlackHandler()
-            handler.vocal = False
-            message = "Prove to me that you work."
+        with mock.patch.object(handler, "eprint", mock_eprint):
             handler.make_post(self.mock_event, message)
 
-            self.assertTrue(mock_func.called_with(message))
+            mock_eprint.assert_called_with(
+                "Message that would have been sent to Slack:\n\n{}\n".format(
+                    message
+                )
+            )
 
     def test_vocal_get_userid_from_name(self):
         """Test that a Slack ID is returned from a username."""
@@ -231,17 +234,14 @@ class SlackHandlerUnitTests(BaseTest):
         with mock.patch.object(handler.slack.users, "get_user_id", mock_func):
             username = "literally anything"
             handler.get_userid_from_name(username)
-            self.assertTrue(mock_func.called_with(username))
+            mock_func.assert_called_with(username)
 
     def test_silent_get_userid_from_name(self):
         """Test that a Slack ID is returned from a username."""
         handler = SlackHandler()
         handler.vocal = False
         username = "Literally anything"
-        self.assertEqual(
-            handler.get_userid_from_name(username),
-            "A_SLACK_USERID"
-        )
+        self.assertIsNone(handler.get_userid_from_name(username))
 
     def test_vocal_get_username_from_id(self):
         """Test that a Slack username is returned from an ID."""
@@ -255,7 +255,7 @@ class SlackHandlerUnitTests(BaseTest):
                 handler.get_username_from_id(slack_id),
                 "A_SLACK_USERNAME"
             )
-            self.assertTrue(mock_func.called_with(slack_id))
+            mock_func.assert_called_with(slack_id)
 
     def test_vocal_get_username_from_id_when_no_user_found(self):
         """Test that a Slack username is returned from an ID."""
@@ -269,21 +269,18 @@ class SlackHandlerUnitTests(BaseTest):
                 handler.get_username_from_id(slack_id),
                 None
             )
-            self.assertTrue(mock_func.called_with(slack_id))
+            mock_func.assert_called_with(slack_id)
 
     def test_silent_get_username_from_id(self):
         """Test that a Slack username is returned from an ID."""
         handler = SlackHandler()
         handler.vocal = False
         slack_id = "000111000"
-        self.assertEqual(
-            handler.get_username_from_id(slack_id),
-            "A_SLACK_USERNAME"
-        )
+        self.assertIsNone(handler.get_username_from_id(slack_id))
 
     def test_get_user_obj_from_id(self):
         """Test that function properly parses a Slack member dict."""
-        mock_func = mock.Mock(name="mock_func")
+        mock_func = mock.MagicMock()
         retval = [
             {
                 'id': 'SLACK_USERID',
@@ -307,7 +304,7 @@ class SlackHandlerUnitTests(BaseTest):
         handler = SlackHandler()
         slack_id = "000111000"
 
-        with mock.patch.object(handler, "_fetch_user_obj", mock_func):
+        with mock.patch.object(handler, "_fetch_users_list", mock_func):
             self.assertEqual(
                 handler.get_user_obj_from_id(slack_id),
                 {
@@ -319,4 +316,4 @@ class SlackHandlerUnitTests(BaseTest):
                     'other_shit': True,
                 }
             )
-            self.assertTrue(mock_func.called_with(slack_id))
+            mock_func.assert_called_with()
