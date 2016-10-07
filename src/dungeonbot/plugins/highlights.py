@@ -48,8 +48,11 @@ class HighlightPlugin(BangCommandPlugin):
 
     def add(self, args):
         """Add new Highlight and return text."""
-        instance = HighlightModel.new(args[0])
-        message = "*New Campaign Highlight*\n{}".format(instance.text)
+        if not args:
+            message = "Could not save highlight."
+        else:
+            instance = HighlightModel.new(args[0])
+            message = "*New Campaign Highlight*\n{}".format(instance.text)
         return message
 
     def list_highlights(self, args):
