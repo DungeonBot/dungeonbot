@@ -44,7 +44,7 @@ examples:
         """Run Roll Plugin."""
         bot = SlackHandler()
 
-        user = bot.get_user_from_id(self.event['user'])
+        user = bot.get_user_obj_from_id(self.event['user'])
         args = self.arg_string.split(",")
 
         message = "_*Roll result{} for {}:*_".format(
@@ -69,8 +69,18 @@ examples:
 
         if args[0] in commands:
             return commands[args[0]](args[1:], user)
+
+        test = user_input.replace(" ", "").split("d")
+        if not test[0].isdigit() or not test[1].isdigit():
+            return "Not a valid command."
         else:
             return self.make_roll(args, user)
+
+    def is_valid_roll_string(self, roll_str):
+        """Check if roll string is valid, with or without a flag."""
+        if not roll_str[0].isdigit():
+            roll_str = roll_str[1:]
+        return roll_str[0].isdigit() and roll_str[1] == "d" and roll_str[2].isdigit()
 
     def save_roll(self, args, user):
         """Save new roll as key/val pair for requesting user."""
@@ -78,20 +88,17 @@ examples:
         val = "".join(args[1:])
         if not (key and val):
             return "Not a valid Key/Pair."
-        if not (val[0].isdigit() and val[1] == "d" and val[2].isdigit()):
-            return "Not a properly formatted roll."
-        instance = RollModel.new(key, val, user)
-        return "Successfully Saved {}: {}".format(
-            instance.key,
-            instance.val
-        )
+        if not self.is_valid_roll_string(val):
+            return "Not a properly formatted roll string."
+        instance = RollModel.new(key=key, val=val, user=user)
+        return "Successfully Saved " + instance.slack_msg
 
     def delete_roll(self, args, user):
         """Delete existing roll via key."""
         key = "".join(args)
-        instance = RollModel.get_by_key(key=key, user=user)
+        instance = RollModel.get(key=key, user=user)
         if instance:
-            return RollModel.delete(instance)
+            return "{} was successfully deleted.".format(RollModel.delete(instance))
         else:
             return "Cannot find item {}".format(key)
 
@@ -101,15 +108,28 @@ examples:
         If additional argument is passed in, use as limit,
         otherwise limit to 10 results returned.
         """
-        message = "*Saved Rolls for {}:*".format(user)
+        message = "*Saved Rolls for {}:*".format(user["name"])
 
         how_many = int("".join(args)) if args else 10
 
         saved = RollModel.list(how_many=how_many, user=user)
 
         for x in saved:
-            message += "\n{}: {}".format(x.key, x.val)
+            message += "\n" + x.slack_msg
         return message
+
+    def parse_flag_and_roll_string(self, args):
+        """Separate roll string and flag from args. Accepts a list and returns a string."""
+        roll_flags = ["a", "d"]
+        flag = None
+        arg = args[0].lstrip("-")
+
+        if arg[0] in roll_flags:
+            flag = arg[0]
+            roll_str = "".join(arg[1:])
+        else:
+            roll_str = "".join(arg)
+        return roll_str, flag
 
     def make_roll(self, args, user):
         """Roll given roll string and return result.
@@ -117,25 +137,12 @@ examples:
         If given roll string is existing saved string, look
         up entry and roll the associated value.
         """
-        roll_flags = ["a", "d"]
         name = None
-        flag = None
-        args[0] = args[0].lstrip("-")
-
-        if args[0] in roll_flags:
-            flag = args[0]
-            roll_str = "".join(args[1:])
-        else:
-            roll_str = "".join(args)
-
-        saved_roll = RollModel.get_by_key(key=roll_str, user=user)
+        roll_str, flag = self.parse_flag_and_roll_string(args)
+        saved_roll = RollModel.get(key=roll_str, user=user)
 
         if saved_roll:
             name = saved_roll.key
-            roll_str = saved_roll.val.lstrip("-")
-            if roll_str[0] in roll_flags:
-                flag = roll_str[0]
-                roll_str = roll_str[1:]
-
-        r = DieRoll(roll_str, flag)
+            roll_str, temp_flag = self.parse_flag_and_roll_string([saved_roll.val])
+        r = DieRoll(roll_str, temp_flag or flag)
         return r.print_results(r.action(), name)
