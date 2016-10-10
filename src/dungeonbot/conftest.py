@@ -22,7 +22,10 @@ class BaseTest(TestCase):
             dburi[-1] = "dungeonbot_test"
             dburi = "/".join(dburi)
 
-        app.config.update(SQLALCHEMY_DATABASE_URI=dburi)
+        app.config.update(
+            SQLALCHEMY_DATABASE_URI=dburi,
+            TESTING=True,
+        )
 
         return app
 
