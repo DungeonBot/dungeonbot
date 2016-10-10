@@ -22,6 +22,7 @@ from auxiliaries.helpers import eprint
 def event_is_important(event):
     """Assert event is valid command and not posted by dungeonbot."""
     suffixes = ["++", "--"]
+
     if (
         event['user'] != os.getenv("BOT_ID") and
         (
@@ -30,6 +31,7 @@ def event_is_important(event):
         )
     ):
         return True
+
     return False
 
 

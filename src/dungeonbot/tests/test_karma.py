@@ -1,5 +1,6 @@
 """Tests for the Event Handler."""
 
+
 from dungeonbot.conftest import BaseTest
 
 from dungeonbot.models.karma import KarmaModel
