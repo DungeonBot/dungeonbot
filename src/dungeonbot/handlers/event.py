@@ -6,7 +6,8 @@ from dungeonbot.plugins import (
     karma,
     roll,
     quest,
-    attribute
+    highlights,
+    attribute,
 )
 
 
@@ -48,6 +49,17 @@ class EventHandler(object):
 
     def parse_bang_command(self):
         """Parse a bang-command and call the appropriate plugin."""
+        valid_commands = {
+            'help': help.HelpPlugin,
+            'karma': karma.KarmaPlugin,
+            'karma_newest': karma.KarmaNewestPlugin,
+            'karma_top': karma.KarmaTopPlugin,
+            'karma_bottom': karma.KarmaBottomPlugin,
+            'roll': roll.RollPlugin,
+            'quest': quest.QuestPlugin,
+            'log': highlights.HighlightPlugin
+        }
+
         evt_string = self.event['text']
         cmd_string = evt_string[1:]
 
