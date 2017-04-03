@@ -27,17 +27,25 @@ description:
     with the `-a` flag (or just `a`), or with disadvantage by prepending the
     roll with `-d` (or just `d`).
 
+    You can also save a roll with a name, and then use that name later.
+
     <PARAMS> are required
     [PARAMS] are optional
 
 
 usage:
     !roll [ADVANTAGE/DISADVANTAGE] <HOW MANY> d <SIDES> [+/-MODIFIER] [, ... ]
+    !roll [SAVE/LIST/DELETE] <NAMED ROLL>
+    !roll [ADVANTAGE/DISADVANTAGE] <NAMED ROLL>
 
 examples:
     !roll 2d6
     !roll -d 1d20-2
     !roll a 1d20+4, 4d6, -d 1d20+3
+    !roll save fireballdmg 8d6
+    !roll fireballdmg
+    !roll list
+    !roll delete fireballdmg
 ```"""
 
     def run(self):
@@ -49,7 +57,7 @@ examples:
 
         message = "_*Roll result{} for {}:*_".format(
             "s" if len(args) > 1 else "",
-            user
+            user["name"],
         )
 
         for item in args:
@@ -70,11 +78,17 @@ examples:
         if args[0] in commands:
             return commands[args[0]](args[1:], user)
 
-        test = user_input.replace(" ", "").split("d")
-        if not test[0].isdigit() or not test[1].isdigit():
-            return "Not a valid command."
-        else:
-            return self.make_roll(args, user)
+#        test = user_input.replace(" ", "").split("d")
+#        if not test[0].isdigit() or not test[1].isdigit():
+#            return "Not a valid command."
+#        else:
+#            return self.make_roll(args, user)
+
+        # Shitty removal of validation, instead of a proper refactor
+        # The issue is that the above block considers a roll with
+        # advantage or disadvantage to be invalid
+        #  - example: "-a 1d20" is invalid here
+        return self.make_roll(args, user)
 
     def is_valid_roll_string(self, roll_str):
         """Check if roll string is valid, with or without a flag."""
@@ -126,9 +140,9 @@ examples:
 
         if arg[0] in roll_flags:
             flag = arg[0]
-            roll_str = "".join(arg[1:])
+            roll_str = "".join(args[1:])
         else:
-            roll_str = "".join(arg)
+            roll_str = "".join(args)
         return roll_str, flag
 
     def make_roll(self, args, user):
@@ -137,7 +151,7 @@ examples:
         If given roll string is existing saved string, look
         up entry and roll the associated value.
         """
-        name = None
+        name, temp_flag = None, None
         roll_str, flag = self.parse_flag_and_roll_string(args)
         saved_roll = RollModel.get(key=roll_str, user=user)
 
