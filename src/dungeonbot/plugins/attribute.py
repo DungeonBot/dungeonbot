@@ -74,7 +74,7 @@ Examples:
     def list_keys(self, args, user):
         """List keys belonging to requesting user."""
         instances = AttrModel.list(args=args[0] if args else None, user=user)
-        message = "Listing attributes for {}".format(user)
+        message = "Listing attributes for {}".format(user["name"])
         for i in instances:
             message += "\n{}: {}".format(i.key, i.val)
         return message
