@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+"""Configure the Flask app."""
+
 import os
 from flask import Flask
 
@@ -7,11 +9,14 @@ from flask import Flask
 # APP CONFIG
 #################################
 
-DB_USER = os.getenv("DB_USER")
-DB_PASS = os.getenv("DB_PASS")
-DB_CRED = DB_USER + ":" + DB_PASS
-DB_NAME = "dungeonbot_db"
-DB_URL = "postgresql://" + DB_CRED + "@localhost/" + DB_NAME
+if os.getenv("DB_URL"):
+    DB_URL = os.getenv("DB_URL")
+else:
+    DB_USER = os.getenv("DB_USER")
+    DB_PASS = os.getenv("DB_PASS")
+    DB_CRED = DB_USER + ":" + DB_PASS
+    DB_NAME = "dungeonbot_db"
+    DB_URL = "postgresql://" + DB_CRED + "@localhost/" + DB_NAME
 
 app = Flask(__name__)
 app.config.update(

@@ -1,25 +1,18 @@
 class DieRoll(object):
     """Roll object that parses roll string and calls appropriate function."""
 
-    def __init__(self, roll_str):
+    def __init__(self, roll_str, flag):
         """Initialize Die roll object by breaking apart roll string."""
-        self.roll_str = roll = roll_str.lstrip("-")
-        self.operator = "+"
-        # make into a property?
-        self.action = self.roll_die
-
-        self.modifier = 0
-        self.message = ""
-        valid_operators = ["+", "-"]
         valid_flags = {
             "a": self.advantage,
             "d": self.disadvantage
         }
-
-        for f in valid_flags:
-            if roll.startswith(f):
-                self.action = valid_flags[f]
-                self.roll_str = roll = roll[len(f):]
+        self.roll_str = roll = roll_str
+        self.operator = "+"
+        self.action = valid_flags[flag] if flag else self.roll_die
+        self.modifier = 0
+        self.message = ""
+        valid_operators = ["+", "-"]
 
         for o in valid_operators:
             if o in roll:
@@ -31,7 +24,7 @@ class DieRoll(object):
         self.min_roll = self.number
         self.max_roll = self.sides * self.number
 
-    def print_results(self, roll_result):
+    def print_results(self, roll_result, name=None):
         """Return result of roll."""
         roll_plus_mods = "{} {} {}".format(
             roll_result,
@@ -48,6 +41,8 @@ class DieRoll(object):
             self.message
         )
 
+        if name:
+            final_result += " with {}".format(name)
         return final_result
 
     def roll_die(self):
@@ -67,7 +62,3 @@ class DieRoll(object):
         """Roll with disadvantage."""
         self.message = "with disadvantage"
         return min(self.roll_die(), self.roll_die())
-
-    def save(self):
-        """Save roll."""
-        pass
