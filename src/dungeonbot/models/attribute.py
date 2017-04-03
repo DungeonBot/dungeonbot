@@ -25,7 +25,7 @@ class AttrModel(db.Model):
             return
         key, val = args
         try:
-            instance = cls(key=key, val=val, user=user["id"])
+            instance = cls(key=key, val=val, user=user)
             session.add(instance)
             session.commit()
             return instance
@@ -39,7 +39,7 @@ class AttrModel(db.Model):
         if session is None:
             session = db.session
         try:
-            instance = session.query(cls).filter_by(key=args, user=user["id"]).one()
+            instance = session.query(cls).filter_by(key=args, user=user).one()
         except NoResultFound:
             instance = None
         return instance
@@ -54,7 +54,7 @@ class AttrModel(db.Model):
         if session is None:
             session = db.session
         how_many = int(args) if args else 10
-        return session.query(cls).filter_by(user=user["id"]).order_by('created desc').limit(how_many).all()
+        return session.query(cls).filter_by(user=user).order_by('created desc').limit(how_many).all()
 
     @classmethod
     def delete(cls, args, user=None, session=None):
@@ -62,7 +62,7 @@ class AttrModel(db.Model):
         if session is None:
             session = db.session
         try:
-            instance = session.query(cls).filter_by(key=args, user=user["id"]).one()
+            instance = session.query(cls).filter_by(key=args, user=user).one()
             session.delete(instance)
             session.commit()
             return args

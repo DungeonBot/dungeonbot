@@ -26,6 +26,7 @@ class EventHandler(object):
             'karma_bottom': karma.KarmaBottomPlugin,
             'roll': roll.RollPlugin,
             'quest': quest.QuestPlugin,
+            'attr': attribute.AttrPlugin,
         }
 
         self.valid_suffixes = {
@@ -57,7 +58,8 @@ class EventHandler(object):
             'karma_bottom': karma.KarmaBottomPlugin,
             'roll': roll.RollPlugin,
             'quest': quest.QuestPlugin,
-            'log': highlights.HighlightPlugin
+            'log': highlights.HighlightPlugin,
+            'attr': attribute.AttrPlugin,
         }
 
         evt_string = self.event['text']
