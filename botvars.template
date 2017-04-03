@@ -1,0 +1,6 @@
+# In order for the bot to speak to Slack, there must exist a file named
+# `botvars` which exports these variables appropriately.
+
+export BOT_ID=
+export BOT_ACCESS_TOKEN=
+export PERMISSION_TO_SPEAK=

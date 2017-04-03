@@ -1,3 +1,7 @@
+# Custom
+botvars
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -16,6 +20,7 @@ downloads/
 eggs/
 .eggs/
 lib/
+bin/
 lib64/
 parts/
 sdist/
@@ -23,6 +28,7 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
+pip-selfcheck.json
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -71,6 +77,7 @@ target/
 
 # pyenv
 .python-version
+pyvenv.cfg
 
 # celery beat schedule file
 celerybeat-schedule
