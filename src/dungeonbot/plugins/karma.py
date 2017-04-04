@@ -55,9 +55,11 @@ class KarmaAssistant(object):
 class KarmaModifyPlugin(SuffixCommandPlugin):
     """Add positive or negative karma to a string."""
 
-    def __init__(self):
+    def __init__(self, *args):
         """Set up KarmaAssistant."""
         self.ka = KarmaAssistant()
+
+        super().__init__(*args)
 
     def run(self):
         """Run the plugin.

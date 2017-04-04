@@ -6,7 +6,7 @@ from dungeonbot.models.attribute import AttrModel
 class AttrPlugin(BangCommandPlugin):
     """Misc. key/value storage for player stats."""
 
-    help_text = """
+    help_text = """```
 Command:
     !attr + ADDITIONAL COMMAND
 
@@ -25,7 +25,7 @@ Examples:
     !attr get strength
     !attr list
     !attr delete strength
-"""
+```"""
 
     def run(self):
         """Run Attr Plugin."""

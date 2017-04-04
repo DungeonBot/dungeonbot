@@ -1,7 +1,3 @@
-**v0.4.0:**  
-[![build status](https://gitlab.com/tannerlake/dungeonbot/badges/v0.4.0/build.svg)](https://gitlab.com/tannerlake/dungeonbot/commits/v0.4.0)
-[![coverage report](https://gitlab.com/tannerlake/dungeonbot/badges/v0.4.0/coverage.svg)](https://gitlab.com/tannerlake/dungeonbot/commits/v0.4.0)
-
 **master:**  
 [![build status](https://gitlab.com/tannerlake/dungeonbot/badges/master/build.svg)](https://gitlab.com/tannerlake/dungeonbot/commits/master)
 [![coverage report](https://gitlab.com/tannerlake/dungeonbot/badges/master/coverage.svg)](https://gitlab.com/tannerlake/dungeonbot/commits/master)
