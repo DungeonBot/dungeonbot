@@ -5,6 +5,8 @@ We track stuff that needs doing over in
 
 ### Want to help out? Great! Here's how:
 
+- Read the [Getting Started Guide](GETTING_STARTED.md) to get your environment up and running.
+
 - Check out a new branch for your work from `dev` branch.
 
 - Do your thing.
