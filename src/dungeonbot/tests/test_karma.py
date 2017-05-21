@@ -474,7 +474,7 @@ class KarmaModifyPluginUnitTests(BaseTest):
         mock_assistant = mock.MagicMock()
         mock_assistant.check_if_correlates_to_userid.return_value = None
 
-        plugin = KarmaModifyPlugin()
+        plugin = KarmaModifyPlugin('fake event', 'fake arg_string')
         plugin.event = mock.MagicMock()
         plugin.arg_string = "some new string"
         plugin.suffix = "++"
@@ -496,7 +496,7 @@ class KarmaModifyPluginUnitTests(BaseTest):
         mock_assistant = mock.MagicMock()
         mock_assistant.check_if_correlates_to_userid.return_value = None
 
-        plugin = KarmaModifyPlugin()
+        plugin = KarmaModifyPlugin('fake event', 'fake arg_string')
         plugin.event = mock.MagicMock()
         plugin.arg_string = "some new string"
         plugin.suffix = "--"
@@ -518,7 +518,7 @@ class KarmaModifyPluginUnitTests(BaseTest):
         mock_assistant = mock.MagicMock()
         mock_assistant.check_if_correlates_to_userid.return_value = None
 
-        plugin = KarmaModifyPlugin()
+        plugin = KarmaModifyPlugin('fake event', 'fake arg_string')
         plugin.event = mock.MagicMock()
         plugin.arg_string = "some existing string"
         plugin.suffix = "++"
@@ -539,7 +539,7 @@ class KarmaModifyPluginUnitTests(BaseTest):
         mock_assistant = mock.MagicMock()
         mock_assistant.check_if_correlates_to_userid.return_value = None
 
-        plugin = KarmaModifyPlugin()
+        plugin = KarmaModifyPlugin('fake event', 'fake arg_string')
         plugin.event = mock.MagicMock()
         plugin.arg_string = "some existing string"
         plugin.suffix = "--"
@@ -561,7 +561,7 @@ class KarmaModifyPluginUnitTests(BaseTest):
         mock_assistant.check_if_correlates_to_userid.return_value = \
             "some new slack id"
 
-        plugin = KarmaModifyPlugin()
+        plugin = KarmaModifyPlugin('fake event', 'fake arg_string')
         plugin.event = mock.MagicMock()
         plugin.arg_string = "some slack username"
         plugin.suffix = "++"
@@ -583,7 +583,7 @@ class KarmaModifyPluginUnitTests(BaseTest):
         mock_assistant.check_if_correlates_to_userid.return_value = \
             "some new slack id"
 
-        plugin = KarmaModifyPlugin()
+        plugin = KarmaModifyPlugin('fake event', 'fake arg_string')
         plugin.event = mock.MagicMock()
         plugin.arg_string = "some slack username"
         plugin.suffix = "--"
@@ -605,7 +605,7 @@ class KarmaModifyPluginUnitTests(BaseTest):
         mock_assistant.check_if_correlates_to_userid.return_value = \
             "some existing slack id"
 
-        plugin = KarmaModifyPlugin()
+        plugin = KarmaModifyPlugin('fake event', 'fake arg_string')
         plugin.event = mock.MagicMock()
         plugin.arg_string = "some slack username"
         plugin.suffix = "++"
@@ -627,7 +627,7 @@ class KarmaModifyPluginUnitTests(BaseTest):
         mock_assistant.check_if_correlates_to_userid.return_value = \
             "some existing slack id"
 
-        plugin = KarmaModifyPlugin()
+        plugin = KarmaModifyPlugin('fake event', 'fake arg_string')
         plugin.event = mock.MagicMock()
         plugin.arg_string = "some slack username"
         plugin.suffix = "--"
