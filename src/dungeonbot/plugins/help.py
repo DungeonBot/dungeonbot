@@ -1,39 +1,42 @@
 """Define logic for the Help plugin."""
 
 from dungeonbot.plugins.primordials import BangCommandPlugin
+from dungeonbot.plugins.attribute import AttrPlugin
+from dungeonbot.plugins.highlights import HighlightPlugin
+from dungeonbot.plugins.initiative import InitiativePlugin
 from dungeonbot.plugins.karma import (
     KarmaPlugin,
     KarmaNewestPlugin,
     KarmaTopPlugin,
     KarmaBottomPlugin,
 )
-from dungeonbot.plugins.roll import RollPlugin
 from dungeonbot.plugins.quest import QuestPlugin
-from dungeonbot.plugins.highlights import HighlightPlugin
-from dungeonbot.plugins.attribute import AttrPlugin
+from dungeonbot.plugins.roll import RollPlugin
 
 
 class HelpPlugin(BangCommandPlugin):
     """Switchboard for `!help` commands."""
 
     help_topics = {
+        'attr': AttrPlugin,
+        'init': InitiativePlugin,
         'karma': KarmaPlugin,
         'karma_newest': KarmaNewestPlugin,
         'karma_top': KarmaTopPlugin,
         'karma_bottom': KarmaBottomPlugin,
-        'roll': RollPlugin,
-        'quest': QuestPlugin,
         'log': HighlightPlugin,
-        'attr': AttrPlugin,
+        'quest': QuestPlugin,
+        'roll': RollPlugin,
     }
 
     help_text = """```
 available help topics:
-    help
-    karma
-    roll
-    quest
     attr
+    help
+    init
+    karma
+    quest
+    roll
 
 Try `!help [topic]` for information on a specific topic.
 ```"""

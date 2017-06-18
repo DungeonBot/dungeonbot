@@ -15,7 +15,7 @@ class RollPluginTests(BaseTest):
         self.mock_event = {
             "text": "",
             "type": "message",
-            "user": "A_SLACK_USERID",
+            "user": "U01234567",
             "ts": "1472164181.000061",
             "channel": "C2377T63B",
             "event_ts": "1472164181.000061",
