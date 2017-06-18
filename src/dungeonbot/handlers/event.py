@@ -2,12 +2,13 @@
 
 from dungeonbot.handlers.slack import SlackHandler
 from dungeonbot.plugins import (
-    help,
-    karma,
-    roll,
-    quest,
-    highlights,
     attribute,
+    help,
+    highlights,
+    initiative,
+    karma,
+    quest,
+    roll,
 )
 
 
@@ -19,14 +20,15 @@ class EventHandler(object):
         self.event = event
 
         self.valid_commands = {
+            'attr': attribute.AttrPlugin,
             'help': help.HelpPlugin,
+            'init': initiative.InitiativePlugin,
             'karma': karma.KarmaPlugin,
             'karma_newest': karma.KarmaNewestPlugin,
             'karma_top': karma.KarmaTopPlugin,
             'karma_bottom': karma.KarmaBottomPlugin,
-            'roll': roll.RollPlugin,
             'quest': quest.QuestPlugin,
-            'attr': attribute.AttrPlugin,
+            'roll': roll.RollPlugin,
         }
 
         self.valid_suffixes = {
@@ -51,15 +53,16 @@ class EventHandler(object):
     def parse_bang_command(self):
         """Parse a bang-command and call the appropriate plugin."""
         valid_commands = {
+            'attr': attribute.AttrPlugin,
             'help': help.HelpPlugin,
+            'init': initiative.InitiativePlugin,
             'karma': karma.KarmaPlugin,
             'karma_newest': karma.KarmaNewestPlugin,
             'karma_top': karma.KarmaTopPlugin,
             'karma_bottom': karma.KarmaBottomPlugin,
-            'roll': roll.RollPlugin,
-            'quest': quest.QuestPlugin,
             'log': highlights.HighlightPlugin,
-            'attr': attribute.AttrPlugin,
+            'quest': quest.QuestPlugin,
+            'roll': roll.RollPlugin,
         }
 
         evt_string = self.event['text']
